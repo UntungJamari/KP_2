@@ -29,4 +29,15 @@ class LoginController extends Controller
         return back()->with('gagal', 'Login Gagal!');
         // dd($valid); 
     }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        request()->session()->invalidate();
+
+        request()->session()->regenerateToken();
+
+        return redirect('/');
+    }
 }

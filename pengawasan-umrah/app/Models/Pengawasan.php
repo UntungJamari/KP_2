@@ -4,16 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
 
-class Kanwil extends Model
+class Pengawasan extends Model
 {
     use HasFactory;
 
     protected $guarded = ['id'];
 
-    public function user()
+    public function ppiu()
     {
-        return $this->belongsTo(User::class, 'id_user');
+        return $this->belongsTo(Ppiu::class, 'id_ppiu');
     }
 }

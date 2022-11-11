@@ -4,9 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
 
-class Kanwil extends Model
+class Ppiu extends Model
 {
     use HasFactory;
 
@@ -15,5 +14,15 @@ class Kanwil extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'id_user');
+    }
+
+    public function kab_kota()
+    {
+        return $this->belongsTo(Kab_kota::class, 'id_kab_kota');
+    }
+
+    public function pengawasans()
+    {
+        return $this->hasMany(Pengawasan::class, 'id_ppiu');
     }
 }

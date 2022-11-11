@@ -44,6 +44,16 @@ class User extends Authenticatable
 
     public function kanwil()
     {
-        return $this->belongsTo(Kanwil::class);
+        return $this->hasOne(Kanwil::class, 'id_user');
+    }
+
+    public function ppiu()
+    {
+        return $this->hasOne(Ppiu::class, 'id_user');
+    }
+
+    public function kemenag_kab_kota()
+    {
+        return $this->hasOne(Kemenag_kab_kota::class, 'id_user');
     }
 }

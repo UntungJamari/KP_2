@@ -13,12 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('kanwils', function (Blueprint $table) {
+        Schema::create('kab_kotas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_user')->unique();
-            $table->string('nama_pimpinan')->nullable();
-            $table->text('alamat');
-            $table->string('logo')->default('logo_kemenag.png');
+            $table->string('nama');
             $table->timestamps();
         });
     }
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('kanwils');
+        Schema::dropIfExists('kab_kotas');
     }
 };

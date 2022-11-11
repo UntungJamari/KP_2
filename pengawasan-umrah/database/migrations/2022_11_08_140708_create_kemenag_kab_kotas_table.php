@@ -13,9 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('kab_kota', function (Blueprint $table) {
+        Schema::create('kemenag_kab_kotas', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
+            $table->foreignId('id_user')->unique();
+            $table->foreignId('id_kab_kota')->unique();
+            $table->string('nama_pimpinan')->nullable();
+            $table->text('alamat');
+            $table->string('logo')->default('logo_kemenag.png');
             $table->timestamps();
         });
     }
@@ -27,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('kab_kotas');
+        Schema::dropIfExists('kemenag_kab_kotas');
     }
 };

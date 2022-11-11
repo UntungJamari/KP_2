@@ -4,7 +4,7 @@
     <!-- Sidebar - Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/dashboard">
         <div class="sidebar-brand-icon">
-            <img src="images/logo_kemenag.png" alt="logo_kemenag" style="width: 50px;">
+            <img src="{{ URL::asset('images/logo_kemenag.png') }}" alt="logo_kemenag" style="width: 50px;">
         </div>
         <div class="sidebar-brand-text mx-3">Pengawasan Umrah</div>
     </a>
@@ -13,19 +13,19 @@
     <hr class="sidebar-divider my-0">
 
     <!-- Nav Item - Dashboard -->
-    <li class="nav-item {{ ($title === 'Dashboard') ? 'active' : '' }}">
+    <li class="nav-item {{ Request::is('dashboard') ? 'active' : '' }}">
         <a class="nav-link" href="/dashboard">
             <i class="fas fa-fw fa-home"></i>
             <span>Dashboard</span></a>
     </li>
 
-    <li class="nav-item {{ ($title === 'PPIU') ? 'active' : '' }}">
-        <a class="nav-link" href="lihat_ppiu.php">
+    <li class="nav-item {{ Request::is('ppiu*') ? 'active' : '' }}">
+        <a class="nav-link" href="/ppiu">
             <i class="fas fa-fw fa-building"></i>
             <span>PPIU</span></a>
     </li>
 
-    <li class="nav-item {{ ($title === 'Pengawasan') ? 'active' : '' }}">
+    <li class="nav-item {{ Request::is('pengawasan') ? 'active' : '' }}">
         <a class="nav-link" href="pengawasan.php">
             <i class="fas fa-fw fa fa-file-alt"></i>
             <span>Pengawasan</span></a>
