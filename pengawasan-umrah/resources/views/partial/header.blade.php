@@ -25,12 +25,12 @@
                     Profil
                 </a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="ganti_password.php">
+                <a class="dropdown-item" href="profil/gantipassword">
                     <i class="fas fa-key fa-sm fa-fw mr-2 text-gray-400"></i>
                     Ganti Password
                 </a>
                 <div class="dropdown-divider"></div>
-                <form action="/logout" method="POST">
+                <form action="/logout" method="POST" onsubmit="return logout(this);">
                     <button class="dropdown-item" id="btn-logout">
                         @csrf
                         <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
@@ -39,8 +39,24 @@
                 </form>
             </div>
         </li>
-
     </ul>
-
 </nav>
 <!-- End of Topbar -->
+<script>
+    function logout(form) {
+        Swal.fire({
+            title: 'Apakah Anda Yakin Ingin Logout?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#26c0fc',
+            cancelButtonColor: '#f51d50',
+            cancelButtonText: 'Tidak!',
+            confirmButtonText: 'Ya!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+        return false;
+    }
+</script>

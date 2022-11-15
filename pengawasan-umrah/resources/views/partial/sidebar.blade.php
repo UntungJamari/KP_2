@@ -25,8 +25,8 @@
             <span>PPIU</span></a>
     </li>
 
-    <li class="nav-item {{ Request::is('pengawasan') ? 'active' : '' }}">
-        <a class="nav-link" href="pengawasan.php">
+    <li class="nav-item {{ Request::is('pengawasan*') ? 'active' : '' }}">
+        <a class="nav-link" href="/pengawasan">
             <i class="fas fa-fw fa fa-file-alt"></i>
             <span>Pengawasan</span></a>
     </li>

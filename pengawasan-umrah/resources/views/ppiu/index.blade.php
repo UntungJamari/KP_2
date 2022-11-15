@@ -29,6 +29,7 @@
                                 <th style="width:20px">No.</th>
                                 <th>Nama PPIU</th>
                                 <th>Status</th>
+                                <th>Kabupaten/Kota</th>
                                 <th>Alamat</th>
                                 <th style="width: 14%;">Aksi</th>
                             </tr>
@@ -39,17 +40,22 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $ppiu->nama }}</td>
                                 <td>{{ $ppiu->status }}</td>
+                                <td>{{ $ppiu->kab_kota->nama }}</td>
                                 <td>{{ $ppiu->alamat }}</td>
                                 <td>
-                                    <a id="detail" type="button" class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#modal-detail" data-nama_ppiu="{{ $ppiu->nama }}" data-username="{{ $ppiu->user->username }}" data-nama_kab_kota="{{ $ppiu->kab_kota->nama }}" data-status="{{ $ppiu->status }}" data-nomor_sk="{{ $ppiu->nomor_sk }}" data-tanggal_sk="{{ $ppiu->tanggal_sk }}" data-alamat="{{ $ppiu->alamat }}" data-nama_pimpinan="{{ $ppiu->nama_pimpinan }}" data-logo="{{ $ppiu->logo }}">
+                                    <a id="detail" type="button" class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#modal-detail" data-nama_ppiu="{{ $ppiu->nama }}" data-username="{{ $ppiu->user->username }}" data-nama_kab_kota="{{ $ppiu->kab_kota->nama }}" data-status="{{ $ppiu->status }}" data-nomor_sk="{{ $ppiu->nomor_sk }}" data-tanggal_sk="{{ date('d-m-Y', strtotime($ppiu->tanggal_sk)) }}" data-alamat="{{ $ppiu->alamat }}" data-nama_pimpinan="{{ $ppiu->nama_pimpinan }}" data-logo="{{ $ppiu->logo }}">
                                         <i class="fas fa-fw fa fa-eye"></i>
                                     </a>
-                                    <a href="edit_ppiu.php?id_ppiu={{ $ppiu->id }}" type="button" class="btn btn-outline-warning btn-sm">
+                                    <a href="/ppiu/edit/{{ $ppiu->id }}" type="button" class="btn btn-outline-warning btn-sm">
                                         <i class="fas fa-fw fa fa-edit"></i>
                                     </a>
-                                    <a id="hapus-ppiu" type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#modal-hapus" data-username="{{ $ppiu->id_user }}">
-                                        <i class="fas fa-fw fa fa-trash-alt"></i>
-                                    </a>
+                                    <form action="/ppiu/delete/{{ $ppiu->id }}" method="POST" class="d-inline" onsubmit="return submitForm(this);">
+                                        @csrf
+                                        <button id="hapus-ppiu" type="submit" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#modal-hapus" data-username="{{ $ppiu->id_user }}">
+                                            <i class="fas fa-fw fa fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+
                                 </td>
                             </tr>
                             @endforeach
@@ -135,7 +141,7 @@
             $('#alamat').text(alamat);
             $('#nama_pimpinan').text(nama_pimpinan);
             $('#logo').text(logo);
-            $('#gambar').attr('src', 'images/profile/' + logo);
+            $('#gambar').attr('src', 'storage/' + logo);
 
         })
     })
@@ -145,4 +151,32 @@
         $('#example').DataTable();
     });
 </script>
+<script>
+    function submitForm(form) {
+        Swal.fire({
+            title: 'Apakah Anda Yakin Ingin Menghapus PPIU Ini?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#26c0fc',
+            cancelButtonColor: '#f51d50',
+            cancelButtonText: 'Tidak!',
+            confirmButtonText: 'Ya!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+        return false;
+    }
+</script>
+@if(session()->has('berhasil'))
+<script>
+    swal.fire({
+        icon: 'success',
+        showConfirmButton: false,
+        timer: '2000',
+        title: '{{ session("berhasil") }}'
+    })
+</script>
+@endif
 @endsection

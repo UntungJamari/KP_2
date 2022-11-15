@@ -45,3 +45,18 @@ Ppiu::create([
 'alamat' => 'Jalan Lintas Lubuk Basung Bukittinggi Jorong Lubuk Anyir RT/RW 00/00 Kel. Bayua Kec. Tanjung Raya Kab. Agam',
 'logo' => 'default.png'
 ])
+
+Pengawasan::create([
+'hari' => 'Senin',
+'tanggal' => '2022-11-07',
+'jam' => '10:10',
+'id_ppiu' => '1',
+'izin' => 'Izin',
+'jumlah_jemaah_laki_laki' => '22',
+'jumlah_jemaah_wanita' => '19',
+'tanggal_keberangkatan' => '2022-10-01',
+'tanggal_kepulangan' => '2022-10-30',
+'temuan_lapangan' => 'Temuan Lapangan',
+'petugas_1' => 'Petugas 1',
+'petugas_2' => 'Petugas 2',
+])

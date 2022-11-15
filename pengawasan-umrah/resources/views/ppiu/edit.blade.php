@@ -23,7 +23,21 @@
                     <i class="fas fa-fw fa fa-arrow-alt-circle-left"></i>
                     <span>Kembali</span>
                 </a>
-                <form class="row g-2 mt-3" action="" method="POST" id="form" enctype="multipart/form-data">
+                <form class="row g-2 mt-3" action="edit_ppiu.php" method="POST" onsubmit="return resetPassword(this);">
+                    @csrf
+                    <div class="col-md-12 form-group mt-5">
+                        <center>
+                            <h4 class="mb-3">Akun PPIU</h4>
+                        </center>
+                    </div>
+
+                    <div class="col-md-6 form-group">
+                        <label for="input1" class="form-label">Reset Password</label>
+                        <input type="submit" class="btn btn-primary btn-user btn-block" id="reset_password" name="reset_password" value="Default : 12345678">
+                    </div>
+                </form>
+                <hr>
+                <form class="row g-2 mt-3" action="/ppiu/update/{{ $ppiu->id }}" method="POST" id="form" enctype="multipart/form-data">
                     @csrf
                     <div class="col-md-12 form-group">
                         <center>
@@ -32,8 +46,17 @@
                     </div>
                     <div class="col-md-12 form-group">
                         <label for="input1" class="form-label">Nama PPIU</label><label style="color: red;">*</label>
-                        <input autofocus type="text" class="form-control @error('nama') is-invalid @enderror" id="input1" name="nama" value="{{ old('nama') }}" required>
+                        <input autofocus type="text" class="form-control @error('nama') is-invalid @enderror" id="input1" name="nama" value="{{ old('nama', $ppiu->nama) }}" required>
                         @error('nama')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                        @enderror
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="input1" class="form-label">Username</label>
+                        <input type="text" class="form-control @error('username') is-invalid @enderror" name="username" id="input1" value="{{ old('username', $ppiu->user->username) }}" required>
+                        @error('username')
                         <div class="invalid-feedback">
                             {{ $message }}
                         </div>
@@ -45,7 +68,7 @@
                         <select class="form-control @error('id_kab_kota') is-invalid @enderror" name="id_kab_kota" id="input2" required>
                             <option value="" selected disabled>Pilih Kabupaten/Kota</option>
                             @foreach ($kab_kotas as $kab_kota)
-                            <option value="{{ $kab_kota->id }}" {{ (old('id_kab_kota') == $kab_kota->id) ? 'selected' : '' }}>{{ $kab_kota->nama }}</option>
+                            <option value="{{ $kab_kota->id }}" {{ (old('id_kab_kota', $ppiu->id_kab_kota) == $kab_kota->id) ? 'selected' : '' }}>{{ $kab_kota->nama }}</option>
                             @endforeach
                         </select>
                         @error('id_kab_kota')
@@ -57,14 +80,14 @@
                     @endif
                     <div class=" col-md-6 form-group">
                         <label for="input1" class="form-label">Nama Pimpinan</label>
-                        <input autofocus type="text" class="form-control" id="input1" name="nama_pimpinan" value="{{ old('nama_pimpinan') }}">
+                        <input autofocus type="text" class="form-control" id="input1" name="nama_pimpinan" value="{{ old('nama_pimpinan', $ppiu->nama_pimpinan) }}">
                     </div>
                     <div class="col-md-6 form-group">
                         <label for="input2" class="form-label">Status</label><label style="color: red;">*</label>
                         <select class="form-control @error('status') is-invalid @enderror" name="status" id="input2" required>
                             <option value="" selected disabled>Pilih Status</option>
-                            <option value="Pusat" {{ (old('status') === "Pusat") ? 'selected' : '' }}>Pusat</option>
-                            <option value="Cabang" {{ (old('status') === "Cabang") ? 'selected' : '' }}>Cabang</option>
+                            <option value="Pusat" {{ (old('status', $ppiu->status) === "Pusat") ? 'selected' : '' }}>Pusat</option>
+                            <option value="Cabang" {{ (old('status', $ppiu->status) === "Cabang") ? 'selected' : '' }}>Cabang</option>
                         </select>
                         @error('status')
                         <div class="invalid-feedback">
@@ -74,7 +97,7 @@
                     </div>
                     <div class="col-md-6 form-group">
                         <label for="input1" class="form-label">Nomor SK</label><label style="color: red;">*</label>
-                        <input autofocus type="text" class="form-control @error('nomor_sk') is-invalid @enderror" id="input1" name="nomor_sk" value="{{ old('nomor_sk') }}" required>
+                        <input autofocus type="text" class="form-control @error('nomor_sk') is-invalid @enderror" id="input1" name="nomor_sk" value="{{ old('nomor_sk', $ppiu->nomor_sk) }}" required>
                         @error('nomor_sk')
                         <div class="invalid-feedback">
                             {{ $message }}
@@ -83,7 +106,7 @@
                     </div>
                     <div class="col-md-6 form-group">
                         <label for="input1" class="form-label">Tanggal SK</label><label style="color: red;">*</label>
-                        <input autofocus type="date" class="form-control @error('tanggal_sk') is-invalid @enderror" id="input1" name="tanggal_sk" value="{{ old('tanggal_sk') }}" required>
+                        <input autofocus type="date" class="form-control @error('tanggal_sk') is-invalid @enderror" id="input1" name="tanggal_sk" value="{{ old('tanggal_sk', $ppiu->tanggal_sk) }}" required>
                         @error('tanggal_sk')
                         <div class="invalid-feedback">
                             {{ $message }}
@@ -92,20 +115,20 @@
                     </div>
                     <div class="col-md-12 form-group">
                         <label for="validationCustom04" class="form-label">Alamat</label><label style="color: red;">*</label>
-                        <textarea class="form-control @error('alamat') is-invalid @enderror" name="alamat" id="validationCustom04" cols="30" rows="3" required>{{ old('alamat') }}</textarea>
+                        <textarea class="form-control @error('alamat') is-invalid @enderror" name="alamat" id="validationCustom04" cols="30" rows="3" required>{{ old('alamat', $ppiu->alamat) }}</textarea>
                         @error('alamat')
                         <div class="invalid-feedback">
                             {{ $message }}
                         </div>
                         @enderror
                     </div>
-                    <div class="col-md-12 form-group">
+                    <div class="col-md-5 form-group">
                         <label for="input1" class="form-label">Logo</label><br>
-                        <img id="upload-img" class="img-preview img-fluid col-6">
+                        <input type="hidden" name="logo_lama" value="{{ $ppiu->logo }}">
+                        <img class="img-preview img-fluid col-12" src="{{ URL::asset('storage/'.$ppiu->logo) }}">
                     </div>
-                    <div class="col-md-3 form-group">
+                    <div class="col-md-2 form-group">
                         <br>
-                        <p style="font-size: 12px; @error('logo') color: red; @enderror">*ukuran file maksimal 1 mb dan format file : .jpg, .jpeg, .png</p>
                         <input type="file" id="file" name="logo" style="display: none;" class="form-control @error('logo') is-invalid @enderror">
                         <label for="file" class="btn btn-primary btn-user btn-block">
                             <i class="fas fa-fw fa fa-images">
@@ -113,23 +136,10 @@
                             Pilih Gambar
                         </label>
                     </div>
-                    <div class="col-md-12 form-group mt-5">
-                        <center>
-                            <h4 class="mb-3">Akun PPIU</h4>
-                        </center>
-                    </div>
-                    <div class="col-md-6 form-group">
-                        <label for="input1" class="form-label">Username</label><label style="color: red;">*</label>
-                        <input autofocus type="text" class="form-control @error('username') is-invalid @enderror" id="input1" name="username" value="{{ old('username') }}" required>
-                        @error('username')
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-                        @enderror
-                    </div>
-                    <div class="col-md-6 form-group">
-                        <label for="input1" class="form-label">Password</label>
-                        <input autofocus type="text" class="form-control" id="input1" name="password" placeholder="Default : 12345678" disabled>
+                    <div class="col-md-5 form-group">
+                        <label for="input1" class="form-label">Logo Baru</label><br>
+                        <img id="upload-img" class="img-preview img-fluid col-12">
+                        <p style="font-size: 12px; @error('logo') color: red; @enderror">*ukuran file maksimal 1 mb dan format file : .jpg, .jpeg, .png</p>
                     </div>
                     <div class="col-md-12 form-group">
                         <center>
@@ -144,6 +154,24 @@
         </div>
     </div>
 </div>
+<script>
+    function resetPassword(form) {
+        Swal.fire({
+            title: 'Apakah Anda Yakin Ingin Mereset Password PPIU Ini?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#26c0fc',
+            cancelButtonColor: '#f51d50',
+            cancelButtonText: 'Tidak!',
+            confirmButtonText: 'Ya!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+        return false;
+    }
+</script>
 <script>
     $(function() {
         $("#file").change(function(event) {

@@ -25,8 +25,8 @@ return new class extends Migration
             $table->date('tanggal_keberangkatan');
             $table->date('tanggal_kepulangan');
             $table->text('temuan_lapangan');
-            $table->date('petugas_1');
-            $table->date('petugas_2');
+            $table->string('petugas_1');
+            $table->string('petugas_2');
             $table->timestamps();
         });
     }

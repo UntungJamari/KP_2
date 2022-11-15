@@ -7,6 +7,7 @@ use App\Models\Kemenag_kab_kota;
 use App\Models\Ppiu;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PpiuController extends Controller
 {
@@ -53,44 +54,37 @@ class PpiuController extends Controller
             ]);
         }
 
-        $request->merge([
-            'id_user' => '1',
-            'password' => bcrypt('11111111'),
-            'level' => 'ppiu'
-        ]);
-
         $valid1 = $request->validate([
             'username' => 'required|min:7|max:255|unique:users',
-            'password' => 'required',
-            'level' => 'required',
         ]);
+
+        $valid2 = $request->validate([
+            'nama' => 'required|min:7|max:255',
+            'id_kab_kota' => 'required',
+            'nama_pimpinan' => '',
+            'status' => 'required',
+            'nomor_sk' => 'required',
+            'tanggal_sk' => 'required|date',
+            'alamat' => 'required',
+            'logo' => 'image|file|max:1024',
+        ]);
+
+        $valid1['password'] = bcrypt('11111111');
+        $valid1['level'] = 'ppiu';
 
         User::create($valid1);
 
         $users = User::all();
         $user = $users->where('username', $valid1['username'])->first();
-        $request->merge([
-            'id_user' => $user->id,
-        ]);
-
-        $valid2 = $request->validate([
-            'nama' => 'required|min:7|max:255',
-            'id_user' => 'required',
-            'id_kab_kota' => 'required',
-            'status' => 'required',
-            'nomor_sk' => 'required',
-            'tanggal_sk' => 'required',
-            'nama_pimpinan' => '',
-            'alamat' => 'required',
-            // 'logo' => 'default.png',
-            'logo' => 'image|file|max:1024',
-        ]);
+        $valid2['id_user'] = $user->id;
 
         if ($request->file('logo')) {
             $valid2['logo'] = $request->file('logo')->store('image-profile');
         }
 
         Ppiu::create($valid2);
+
+        return redirect('/ppiu/create')->with('berhasil', 'Berhasil Menambahkan PPIU!');
     }
 
     /**
@@ -112,7 +106,12 @@ class PpiuController extends Controller
      */
     public function edit(Ppiu $ppiu)
     {
-        //
+        return view('ppiu.edit', [
+            'title' => 'PPIU',
+            'subtitle' => 'Edit PPIU',
+            'ppiu' => $ppiu,
+            'kab_kotas' => Kab_kota::all()
+        ]);
     }
 
     /**
@@ -124,7 +123,42 @@ class PpiuController extends Controller
      */
     public function update(Request $request, Ppiu $ppiu)
     {
-        //
+        if (auth()->user()->level === 'kab/kota') {
+            $kemenag_kab_kotas = Kemenag_kab_kota::all();
+            $kemenag_kab_kota = $kemenag_kab_kotas->where('id_user', auth()->user()->id)->first();
+            $request->merge([
+                'id_kab_kota' => $kemenag_kab_kota->id_kab_kota,
+            ]);
+        }
+
+        $valid2 = $request->validate([
+            'nama' => 'required|min:7|max:255',
+            'id_kab_kota' => 'required',
+            'nama_pimpinan' => '',
+            'status' => 'required',
+            'nomor_sk' => 'required',
+            'tanggal_sk' => 'required|date',
+            'alamat' => 'required',
+            'logo' => 'image|file|max:1024',
+        ]);
+
+        if ($request->username != $ppiu->user->username) {
+            $valid1 = $request->validate([
+                'username' => 'required|min:7|max:255|unique:users',
+            ]);
+            User::where('id', $ppiu->user->id)
+                ->update($valid1);
+        }
+
+        if ($request->file('logo')) {
+            Storage::delete($ppiu->logo);
+            $valid2['logo'] = $request->file('logo')->store('image-profile');
+        }
+
+        Ppiu::where('id', $ppiu->id)
+            ->update($valid2);
+
+        return redirect('/ppiu/edit/' . $ppiu->id)->with('berhasil', 'Berhasil Mengubah data PPIU!');
     }
 
     /**
@@ -135,6 +169,11 @@ class PpiuController extends Controller
      */
     public function destroy(Ppiu $ppiu)
     {
-        //
+        Storage::delete($ppiu->logo);
+
+        Ppiu::destroy($ppiu->id);
+        User::destroy($ppiu->id_user);
+
+        return redirect('/ppiu')->with('berhasil', 'Berhasil Menghapus PPIU!');
     }
 }
