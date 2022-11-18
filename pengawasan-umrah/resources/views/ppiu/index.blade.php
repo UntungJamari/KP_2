@@ -1,6 +1,15 @@
 @extends('layout.main')
 
 @section('container')
+<!-- Custom styles for this page -->
+<link rel="stylesheet" type="text/css" href="{{ URL::asset('datatables/dataTables.bootstrap5.min.css') }}">
+
+<!-- Page level plugins -->
+<script src="{{ URL::asset('datatables/jquery.dataTables.min.js') }}"></script>
+<script src="{{ URL::asset('datatables/dataTables.bootstrap5.min.js') }}"></script>
+
+<!-- Page level custom scripts -->
+<script src="{{ URL::asset('js/demo/datatables-demo.js') }}"></script>
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">PPIU</h1>
 </div>
@@ -46,7 +55,7 @@
                                     <a id="detail" type="button" class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#modal-detail" data-nama_ppiu="{{ $ppiu->nama }}" data-username="{{ $ppiu->user->username }}" data-nama_kab_kota="{{ $ppiu->kab_kota->nama }}" data-status="{{ $ppiu->status }}" data-nomor_sk="{{ $ppiu->nomor_sk }}" data-tanggal_sk="{{ date('d-m-Y', strtotime($ppiu->tanggal_sk)) }}" data-alamat="{{ $ppiu->alamat }}" data-nama_pimpinan="{{ $ppiu->nama_pimpinan }}" data-logo="{{ $ppiu->logo }}">
                                         <i class="fas fa-fw fa fa-eye"></i>
                                     </a>
-                                    <a href="/ppiu/edit/{{ $ppiu->id }}" type="button" class="btn btn-outline-warning btn-sm">
+                                    <a href="/ppiu/update/{{ $ppiu->id }}" type="button" class="btn btn-outline-warning btn-sm">
                                         <i class="fas fa-fw fa fa-edit"></i>
                                     </a>
                                     <form action="/ppiu/delete/{{ $ppiu->id }}" method="POST" class="d-inline" onsubmit="return submitForm(this);">

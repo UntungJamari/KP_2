@@ -19,22 +19,12 @@
     <!-- Custom styles for this template-->
     <link href="{{ URL::asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
 
-    <!-- Custom styles for this page -->
-    <link rel="stylesheet" type="text/css" href="{{ URL::asset('datatables/dataTables.bootstrap5.min.css') }}">
-
     <!-- Bootstrap core JavaScript-->
     <script src="{{ URL::asset('jquery/jquery.min.js') }}"></script>
     <script src="{{ URL::asset('bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
     <!-- Core plugin JavaScript-->
     <script src="{{ URL::asset('jquery-easing/jquery.easing.min.js') }}"></script>
-
-    <!-- Page level plugins -->
-    <script src="{{ URL::asset('datatables/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ URL::asset('datatables/dataTables.bootstrap5.min.js') }}"></script>
-
-    <!-- Page level custom scripts -->
-    <script src="{{ URL::asset('js/demo/datatables-demo.js') }}"></script>
 
     <!-- Sweetalert2 -->
     <link rel="stylesheet" href="{{ URL::asset('sweetalert2/sweetalert2.min.css') }}">
@@ -70,14 +60,8 @@
         </a>
     </div>
 
-    <!-- Custom scripts for all pages-->
+    <!-- Custom scripts for all pages -->
     <script src="{{ URL::asset('js/sb-admin-2.min.js') }}"></script>
-
-    <script>
-        $(document).ready(function() {
-            $('#example').DataTable();
-        });
-    </script>
 
 </body>
 

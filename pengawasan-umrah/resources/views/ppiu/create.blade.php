@@ -1,6 +1,10 @@
 @extends('layout.main')
 
 @section('container')
+<!-- Materialize -->
+<!-- <link rel="stylesheet" href="{{ URL::asset('autocomplete/materialize.min.css') }}"> -->
+<!-- <script src="{{ URL::asset('autocomplete/materialize.min.js') }}"></script> -->
+
 <!-- Page Heading -->
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">{{ $title }}</h1>
@@ -30,9 +34,25 @@
                             <h4 class="mb-3">Data PPIU</h4>
                         </center>
                     </div>
+                    @if(auth()->user()->level === 'kanwil')
+                    <div class="col-md-6 form-group">
+                        <label for="input2" class="form-label">Status</label><label style="color: red;">*</label>
+                        <select class="form-control @error('status') is-invalid @enderror" name="status" id="status" onchange="statusSelected()" autofocus required>
+                            <option value="" selected disabled>Pilih Status</option>
+                            <option value="Pusat" {{ (old('status') === "Pusat") ? 'selected' : '' }}>Pusat</option>
+                            <option value="Cabang" {{ (old('status') === "Cabang") ? 'selected' : '' }}>Cabang</option>
+                        </select>
+                        @error('status')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                        @enderror
+                    </div>
+                    @endif
                     <div class="col-md-12 form-group">
                         <label for="input1" class="form-label">Nama PPIU</label><label style="color: red;">*</label>
-                        <input autofocus type="text" class="form-control @error('nama') is-invalid @enderror" id="input1" name="nama" value="{{ old('nama') }}" required>
+                        <input autofocus type="text" class="form-control @error('nama') is-invalid @enderror" id="{{ (auth()->user()->level === 'kab/kota') ? 'nama_ppiu' : 'nama' }}" name="nama" value="{{ old('nama') }}" autocomplete="off" required>
+                        <div id="ppiuList"></div>
                         @error('nama')
                         <div class="invalid-feedback">
                             {{ $message }}
@@ -58,19 +78,6 @@
                     <div class=" col-md-6 form-group">
                         <label for="input1" class="form-label">Nama Pimpinan</label>
                         <input autofocus type="text" class="form-control" id="input1" name="nama_pimpinan" value="{{ old('nama_pimpinan') }}">
-                    </div>
-                    <div class="col-md-6 form-group">
-                        <label for="input2" class="form-label">Status</label><label style="color: red;">*</label>
-                        <select class="form-control @error('status') is-invalid @enderror" name="status" id="input2" required>
-                            <option value="" selected disabled>Pilih Status</option>
-                            <option value="Pusat" {{ (old('status') === "Pusat") ? 'selected' : '' }}>Pusat</option>
-                            <option value="Cabang" {{ (old('status') === "Cabang") ? 'selected' : '' }}>Cabang</option>
-                        </select>
-                        @error('status')
-                        <div class="invalid-feedback">
-                            {{ $message }}
-                        </div>
-                        @enderror
                     </div>
                     <div class="col-md-6 form-group">
                         <label for="input1" class="form-label">Nomor SK</label><label style="color: red;">*</label>
@@ -144,6 +151,48 @@
         </div>
     </div>
 </div>
+
+<!-- Ajax -->
+<script src="{{ URL::asset('ajax/jquery.min.js') }}"></script>
+<script>
+    function statusSelected() {
+        let status = $('#status').val();
+        if (status == 'Cabang') {
+            $("#nama").attr("id", "nama_ppiu");
+            $(document).ready(function() {
+
+                $('#nama_ppiu').keyup(function() {
+                    var query = $(this).val();
+                    if (query == '') {
+                        var query = '    ';
+                    }
+                    var _token = $('input[name="_token"]').val();
+                    $.ajax({
+                        url: "{{ route('cariPpiu') }}",
+                        method: "POST",
+                        data: {
+                            query: query,
+                            _token: _token
+                        },
+                        success: function(data) {
+                            $('#ppiuList').fadeIn();
+                            $('#ppiuList').html(data);
+                        }
+                    });
+
+                });
+
+                $(document).on('click', 'li', function() {
+                    $('#nama_ppiu').val($(this).text());
+                    $('#ppiuList').fadeOut();
+                });
+
+            });
+        } else {
+            $("#nama_ppiu").attr("id", "nama");
+        }
+    }
+</script>
 <script>
     $(function() {
         $("#file").change(function(event) {
@@ -151,7 +200,7 @@
             $("#upload-img").attr("src", x);
             console.log(event);
         });
-    })
+    });
 </script>
 @if(session()->has('berhasil'))
 <script>
@@ -160,7 +209,47 @@
         showConfirmButton: false,
         timer: '2000',
         title: '{{ session("berhasil") }}'
+    });
+</script>
+@endif
+@if(session()->has('gagal'))
+<script>
+    swal.fire({
+        icon: 'error',
+        showConfirmButton: true,
+        title: '{{ session("gagal") }}'
     })
 </script>
 @endif
+<script>
+    $(document).ready(function() {
+
+        $('#nama_ppiu').keyup(function() {
+            var query = $(this).val();
+            if (query == '') {
+                var query = '    ';
+            }
+            var _token = $('input[name="_token"]').val();
+            $.ajax({
+                url: "{{ route('cariPpiu') }}",
+                method: "POST",
+                data: {
+                    query: query,
+                    _token: _token
+                },
+                success: function(data) {
+                    $('#ppiuList').fadeIn();
+                    $('#ppiuList').html(data);
+                }
+            });
+
+        });
+
+        $(document).on('click', 'li', function() {
+            $('#nama_ppiu').val($(this).text());
+            $('#ppiuList').fadeOut();
+        });
+
+    });
+</script>
 @endsection

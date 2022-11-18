@@ -1,6 +1,20 @@
 @extends('layout.main')
 
 @section('container')
+
+<!-- Custom styles for this page -->
+<link rel="stylesheet" type="text/css" href="{{ URL::asset('datatables/dataTables.bootstrap5.min.css') }}">
+
+<!-- Page level plugins -->
+<script src="{{ URL::asset('datatables/jquery.dataTables.min.js') }}"></script>
+<script src="{{ URL::asset('datatables/dataTables.bootstrap5.min.js') }}"></script>
+
+<!-- Page level custom scripts -->
+<script src="{{ URL::asset('js/demo/datatables-demo.js') }}"></script>
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">PPIU</h1>
+</div>
+
 <!-- Page Heading -->
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Pengawasan Umrah</h1>
@@ -20,10 +34,12 @@
             </div>
             <!-- Card Body -->
             <div class="card-body">
+                @if(auth()->user()->level == 'ppiu')
                 <a href="pengawasan/create" type="button" class="btn btn-outline-info btn-sm mb-3">
                     <i class="fas fa-fw fa fa-plus"></i>
                     <span>Blanko Pengawasan Umrah</span>
                 </a>
+                @endif
                 <div class="table-responsive">
                     <table class="table table-bordered" id="example" width="100%" cellspacing="0">
                         <thead>
@@ -31,7 +47,9 @@
                                 <th style="width:20px;">No.</th>
                                 @if(auth()->user()->level !== 'ppiu')
                                 <th>Nama PPIU</th>
+                                @if(auth()->user()->level !== 'kab/kota')
                                 <th>Kab/Kota</th>
+                                @endif
                                 @endif
                                 <th style="width: 80px;">Tanggal</th>
                                 <th>Jam</th>
@@ -47,7 +65,9 @@
                                 <td>{{ $loop->iteration }}</td>
                                 @if(auth()->user()->level !== 'ppiu')
                                 <td>{{ $pengawasan->ppiu->nama }}</td>
+                                @if(auth()->user()->level !== 'kab/kota')
                                 <td>{{ $pengawasan->ppiu->kab_kota->nama }}</td>
+                                @endif
                                 @endif
                                 <td>{{ date('d-m-Y', strtotime($pengawasan->tanggal)) }}</td>
                                 <td>{{ $pengawasan->jam}}</td>
@@ -55,18 +75,22 @@
                                 <td>{{ date('d-m-Y', strtotime($pengawasan->tanggal_keberangkatan)) }}</td>
                                 <td>{{ date('d-m-Y', strtotime($pengawasan->tanggal_kepulangan)) }}</td>
                                 <td>
-                                    <a id="detail" type="button" class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#modal-detail" data-nama_ppiu="{{ $pengawasan->ppiu->nama }}" data-nama_kab_kota="{{ $pengawasan->ppiu->kab_kota->nama }}" data-hari="{{ $pengawasan->hari }}" data-tanggal="{{ date('d-m-Y', strtotime($pengawasan->tanggal)) }}" data-jam="{{ $pengawasan->jam }}" data-izin="{{ $pengawasan->izin }}" data-jumlah_jemaah_laki_laki="{{ $pengawasan->jumlah_jemaah_laki_laki }}" data-jumlah_jemaah_wanita="{{ $pengawasan->jumlah_jemaah_wanita }}" data-tanggal_keberangkatan="{{ date('d-m-Y', strtotime($pengawasan->tanggal_keberangkatan)) }}" data-tanggal_kepulangan="{{ date('d-m-Y', strtotime($pengawasan->tanggal_kepulangan)) }}" data-temuan_lapangan="{{ $pengawasan->temuan_lapangan }}" data-petugas_1="{{ $pengawasan->petugas_1 }}" data-petugas_2="{{ $pengawasan->petugas_2 }}">
+                                    <a id="detail" type="button" class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#modal-detail" data-nama_ppiu="{{ $pengawasan->ppiu->nama }}" data-nama_kab_kota="{{ $pengawasan->ppiu->kab_kota->nama }}" data-status_ppiu="{{ $pengawasan->ppiu->status }}" data-hari="{{ $pengawasan->hari }}" data-tanggal="{{ date('d-m-Y', strtotime($pengawasan->tanggal)) }}" data-jam="{{ $pengawasan->jam }}" data-izin="{{ $pengawasan->izin }}" data-jumlah_jemaah_laki_laki="{{ $pengawasan->jumlah_jemaah_laki_laki }}" data-jumlah_jemaah_wanita="{{ $pengawasan->jumlah_jemaah_wanita }}" data-tanggal_keberangkatan="{{ date('d-m-Y', strtotime($pengawasan->tanggal_keberangkatan)) }}" data-tanggal_kepulangan="{{ date('d-m-Y', strtotime($pengawasan->tanggal_kepulangan)) }}" data-temuan_lapangan="{{ $pengawasan->temuan_lapangan }}" data-petugas_1="{{ $pengawasan->petugas_1 }}" data-petugas_2="{{ $pengawasan->petugas_2 }}">
                                         <i class="fas fa-fw fa fa-eye"></i>
                                     </a>
-                                    <a href="/pengawasan/edit/{{ $pengawasan->id }}" type="button" class="btn btn-outline-warning btn-sm">
+                                    @can('update', $pengawasan)
+                                    <a href="/pengawasan/update/{{ $pengawasan->id }}" type="button" class="btn btn-outline-warning btn-sm">
                                         <i class="fas fa-fw fa fa-edit"></i>
                                     </a>
+                                    @endcan
+                                    @can('destroy', $pengawasan)
                                     <form action="/pengawasan/delete/{{ $pengawasan->id }}" method="POST" class="d-inline" onsubmit="return submitForm(this);">
                                         @csrf
                                         <button id="hapus-ppiu" type="submit" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#modal-hapus" data-username="{{ $pengawasan->id_user }}">
                                             <i class="fas fa-fw fa fa-trash-alt"></i>
                                         </button>
                                     </form>
+                                    @endcan
                                 </td>
                             </tr>
                             @endforeach
@@ -100,6 +124,10 @@
                         <tr>
                             <th>Kab/Kota</th>
                             <td><span id="nama_kab_kota"></span></td>
+                        </tr>
+                        <tr>
+                            <th>Status PPIU</th>
+                            <td><span id="status_ppiu"></span></td>
                         </tr>
                         <tr>
                             <th>Hari</th>
@@ -156,6 +184,7 @@
         $(document).on('click', '#detail', function() {
             var nama_ppiu = $(this).data('nama_ppiu');
             var nama_kab_kota = $(this).data('nama_kab_kota');
+            var status_ppiu = $(this).data('status_ppiu');
             var hari = $(this).data('hari');
             var tanggal = $(this).data('tanggal');
             var jam = $(this).data('jam');
@@ -169,6 +198,7 @@
             var petugas_2 = $(this).data('petugas_2');
             $('#nama_ppiu').text(nama_ppiu);
             $('#nama_kab_kota').text(nama_kab_kota);
+            $('#status_ppiu').text(status_ppiu);
             $('#hari').text(hari);
             $('#tanggal').text(tanggal);
             $('#jam').text(jam);
@@ -182,6 +212,11 @@
             $('#petugas_2').text(petugas_2);
         })
     })
+</script>
+<script>
+    $(document).ready(function() {
+        $('#example').DataTable();
+    });
 </script>
 <script>
     function submitForm(form) {

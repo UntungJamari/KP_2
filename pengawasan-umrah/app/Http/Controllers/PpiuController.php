@@ -18,9 +18,17 @@ class PpiuController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', Ppiu::class);
+        if (auth()->user()->level === 'kanwil') {
+            $ppiu = Ppiu::all();
+        } elseif (auth()->user()->level === 'kab/kota') {
+            $kemenag_kab_kota = Kemenag_kab_kota::where('id_user', auth()->user()->id)->first();
+            $ppiu = Ppiu::where('id_kab_kota', $kemenag_kab_kota->id_kab_kota)
+                ->get();
+        }
         return view('ppiu.index', [
             'title' => 'PPIU',
-            'ppius' => Ppiu::all()
+            'ppius' =>  $ppiu
         ]);
     }
 
@@ -31,11 +39,31 @@ class PpiuController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Ppiu::class);
         return view('ppiu.create', [
             'title' => 'PPIU',
             'subtitle' => 'Tambah PPIU',
             'kab_kotas' => Kab_kota::all()
         ]);
+    }
+
+    public function cariPpiu(Request $request)
+    {
+        $this->authorize('create', Ppiu::class);
+        if ($request->get('query')) {
+            $query = $request->get('query');
+            $ppius = Ppiu::where('status', 'Pusat')
+                ->where('nama', 'LIKE', "%{$query}%")
+                ->get();
+            $output = '<ul class="dropdown-menu mx-3" style="display:block; position:absolute;width:97%;]">';
+            foreach ($ppius as $ppiu) {
+                $output .= '
+                <li><a class="dropdown-item" href="#">' . $ppiu->nama . '</a></li>
+                ';
+            }
+            $output .= '</ul>';
+            echo $output;
+        }
     }
 
     /**
@@ -46,11 +74,13 @@ class PpiuController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Ppiu::class);
         if (auth()->user()->level === 'kab/kota') {
             $kemenag_kab_kotas = Kemenag_kab_kota::all();
             $kemenag_kab_kota = $kemenag_kab_kotas->where('id_user', auth()->user()->id)->first();
             $request->merge([
                 'id_kab_kota' => $kemenag_kab_kota->id_kab_kota,
+                'status' => 'Cabang',
             ]);
         }
 
@@ -71,6 +101,35 @@ class PpiuController extends Controller
 
         $valid1['password'] = bcrypt('11111111');
         $valid1['level'] = 'ppiu';
+
+        if ($request->status == 'Pusat') {
+            $cek_pusat = Ppiu::where('nama', $request->nama)
+                ->where('status', $request->status)
+                ->first();
+            if ($cek_pusat) {
+                return redirect()->back()->withInput()->with('gagal', $request->nama . ' Kantor ' . $request->status . ' Sudah Ada!');
+            }
+        }
+
+        if ($request->status == 'Cabang') {
+
+            $cek_pusat = Ppiu::where('nama', $request->nama)
+                ->where('status', 'Pusat')
+                ->first();
+            if (!$cek_pusat) {
+                return redirect()->back()->withInput()->with('gagal', $request->nama . ' Belum Terdaftar!');
+            }
+
+            $cek_cabang = Ppiu::where('nama', $request->nama)
+                ->where('status', $request->status)
+                ->where('id_kab_kota', $request->id_kab_kota)
+                ->first();
+
+            if ($cek_cabang) {
+                $kab_kota = Kab_kota::where('id', $request->id_kab_kota)->first();
+                return redirect()->back()->withInput()->with('gagal', $request->nama . ' Kantor ' . $request->status . ' di ' . $kab_kota->nama . ' Sudah Ada!');
+            }
+        }
 
         User::create($valid1);
 
@@ -106,6 +165,7 @@ class PpiuController extends Controller
      */
     public function edit(Ppiu $ppiu)
     {
+        $this->authorize('update', Ppiu::class);
         return view('ppiu.edit', [
             'title' => 'PPIU',
             'subtitle' => 'Edit PPIU',

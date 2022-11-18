@@ -46,6 +46,24 @@ Ppiu::create([
 'logo' => 'default.png'
 ])
 
+Kab_kota::create([
+'nama' => 'Kabupaten Dharmasraya',
+])
+
+User::create([
+'username' => 'kemenag_dharmasraya',
+'password' => bcrypt('11111111'),
+'level' => 'kab/kota'
+])
+
+Kemenag_kab_kota::create([
+'nama' => 'Kementerian Agama Kabupaten Dharmasraya',
+'id_user' => '5',
+'id_kab_kota' => '2',
+'alamat' => 'Jl. Kuini No.79B, Ujung Gurun, Kec. Padang Bar., Kota Padang, Sumatera Barat 25114',
+'logo' => 'logo_kemenag.png'
+])
+
 Pengawasan::create([
 'hari' => 'Senin',
 'tanggal' => '2022-11-07',

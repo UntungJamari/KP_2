@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Kemenag_Kab_kota;
+use App\Models\Ppiu;
 use App\Models\Pengawasan;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -15,9 +17,20 @@ class PengawasanController extends Controller
      */
     public function index()
     {
+        if (auth()->user()->level === 'kanwil') {
+            $pengawasan = Pengawasan::all();
+        } elseif (auth()->user()->level === 'kab/kota') {
+            $kemenag_kab_kota = Kemenag_kab_kota::where('id_user', auth()->user()->id)->first();
+            $pengawasan = Pengawasan::join('ppius', 'ppius.id', '=', 'id_ppiu')
+                ->where('ppius.id_kab_kota', $kemenag_kab_kota->id_kab_kota)
+                ->get(['pengawasans.*']);
+        } elseif (auth()->user()->level === 'ppiu') {
+            $ppiu = Ppiu::where('id_user', auth()->user()->id)->first();
+            $pengawasan = Pengawasan::where('id_ppiu', $ppiu->id)->get();
+        }
         return view('pengawasan.index', [
             'title' => 'Pengawasan',
-            'pengawasans' => Pengawasan::all()
+            'pengawasans' => $pengawasan
         ]);
     }
 
@@ -28,6 +41,7 @@ class PengawasanController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Pengawasan::class);
         return view('pengawasan.create', [
             'title' => 'Pengawasan',
             'subtitle' => 'Blanko Pengawasan Umrah',
@@ -42,6 +56,7 @@ class PengawasanController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Pengawasan::class);
         $valid = $request->validate([
             'izin' => 'required',
             'jumlah_jemaah_laki_laki' => 'required|numeric|min:0',
@@ -89,6 +104,7 @@ class PengawasanController extends Controller
      */
     public function edit(Pengawasan $pengawasan)
     {
+        $this->authorize('update', $pengawasan);
         return view('pengawasan.edit', [
             'title' => 'Pengawasan',
             'subtitle' => 'Edit Isian Blanko Pengawasan',
@@ -105,6 +121,7 @@ class PengawasanController extends Controller
      */
     public function update(Request $request, Pengawasan $pengawasan)
     {
+        $this->authorize('update', $pengawasan);
         $valid = $request->validate([
             'izin' => 'required',
             'jumlah_jemaah_laki_laki' => 'required|numeric|min:0',
@@ -130,6 +147,7 @@ class PengawasanController extends Controller
      */
     public function destroy(Pengawasan $pengawasan)
     {
+        $this->authorize('destroy', $pengawasan);
         Pengawasan::destroy($pengawasan->id);
         return redirect('/pengawasan')->with('berhasil', 'Berhasil Menghapus Data Pengawasan!');
     }

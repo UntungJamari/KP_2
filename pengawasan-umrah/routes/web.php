@@ -36,13 +36,14 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('aut
 Route::get('/ppiu', [PpiuController::class, 'index'])->middleware('auth');
 Route::get('/ppiu/create', [PpiuController::class, 'create'])->middleware('auth');
 Route::post('/ppiu/create', [PpiuController::class, 'store'])->middleware('auth');
-Route::post('/ppiu/delete/{ppiu}', [PpiuController::class, 'destroy'])->middleware('auth');
-Route::get('/ppiu/edit/{ppiu}', [PpiuController::class, 'edit'])->middleware('auth');
+Route::get('/ppiu/update/{ppiu}', [PpiuController::class, 'edit'])->middleware('auth');
 Route::post('/ppiu/update/{ppiu}', [PpiuController::class, 'update'])->middleware('auth');
+Route::post('/ppiu/delete/{ppiu}', [PpiuController::class, 'destroy'])->middleware('auth');
+Route::post('/ppiu/find', [PpiuController::class, 'cariPpiu'])->name('cariPpiu')->middleware('auth');
 
 Route::get('/pengawasan', [PengawasanController::class, 'index'])->middleware('auth');
 Route::get('/pengawasan/create', [PengawasanController::class, 'create'])->middleware('auth');
 Route::post('/pengawasan/create', [PengawasanController::class, 'store'])->middleware('auth');
-Route::get('/pengawasan/edit/{pengawasan}', [PengawasanController::class, 'edit'])->middleware('auth');
+Route::get('/pengawasan/update/{pengawasan}', [PengawasanController::class, 'edit'])->middleware('auth');
 Route::post('/pengawasan/update/{pengawasan}', [PengawasanController::class, 'update'])->middleware('auth');
 Route::post('/pengawasan/delete/{pengawasan}', [PengawasanController::class, 'destroy'])->middleware('auth');
