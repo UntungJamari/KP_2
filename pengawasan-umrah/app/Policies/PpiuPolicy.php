@@ -56,6 +56,9 @@ class PpiuPolicy
         if ($user->level == 'kab/kota') {
             return $user->kemenag_kab_kota->id_kab_kota == $ppiu->id_kab_kota;
         } elseif ($user->level == 'kanwil') {
+            return true;
+        } elseif ($user->level == 'ppiu') {
+            return false;
         }
     }
 
@@ -68,7 +71,13 @@ class PpiuPolicy
      */
     public function delete(User $user, Ppiu $ppiu)
     {
-        //
+        if ($user->level == 'kab/kota') {
+            return $user->kemenag_kab_kota->id_kab_kota == $ppiu->id_kab_kota;
+        } elseif ($user->level == 'kanwil') {
+            return true;
+        } elseif ($user->level == 'ppiu') {
+            return false;
+        }
     }
 
     /**

@@ -165,7 +165,7 @@ class PpiuController extends Controller
      */
     public function edit(Ppiu $ppiu)
     {
-        $this->authorize('update', Ppiu::class);
+        $this->authorize('update', $ppiu);
         return view('ppiu.edit', [
             'title' => 'PPIU',
             'subtitle' => 'Edit PPIU',
@@ -183,6 +183,7 @@ class PpiuController extends Controller
      */
     public function update(Request $request, Ppiu $ppiu)
     {
+        $this->authorize('update', $ppiu);
         if (auth()->user()->level === 'kab/kota') {
             $kemenag_kab_kotas = Kemenag_kab_kota::all();
             $kemenag_kab_kota = $kemenag_kab_kotas->where('id_user', auth()->user()->id)->first();
@@ -218,7 +219,7 @@ class PpiuController extends Controller
         Ppiu::where('id', $ppiu->id)
             ->update($valid2);
 
-        return redirect('/ppiu/edit/' . $ppiu->id)->with('berhasil', 'Berhasil Mengubah data PPIU!');
+        return redirect('/ppiu/update/' . $ppiu->id)->with('berhasil', 'Berhasil Mengubah data PPIU!');
     }
 
     /**
@@ -229,6 +230,8 @@ class PpiuController extends Controller
      */
     public function destroy(Ppiu $ppiu)
     {
+        $this->authorize('delete', $ppiu);
+
         Storage::delete($ppiu->logo);
 
         Ppiu::destroy($ppiu->id);

@@ -136,7 +136,7 @@ class PengawasanController extends Controller
         Pengawasan::where('id', $pengawasan->id)
             ->update($valid);
 
-        return redirect('/pengawasan/edit/' . $pengawasan->id)->with('berhasil', 'Berhasil Mengubah Data Pengawasan!');
+        return redirect('/pengawasan/update/' . $pengawasan->id)->with('berhasil', 'Berhasil Mengubah Data Pengawasan!');
     }
 
     /**

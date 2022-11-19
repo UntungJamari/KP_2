@@ -19,11 +19,13 @@
             <span>Dashboard</span></a>
     </li>
 
+    @if(auth()->user()->level != 'ppiu')
     <li class="nav-item {{ Request::is('ppiu*') ? 'active' : '' }}">
         <a class="nav-link" href="/ppiu">
             <i class="fas fa-fw fa-building"></i>
             <span>PPIU</span></a>
     </li>
+    @endif
 
     <li class="nav-item {{ Request::is('pengawasan*') ? 'active' : '' }}">
         <a class="nav-link" href="/pengawasan">
