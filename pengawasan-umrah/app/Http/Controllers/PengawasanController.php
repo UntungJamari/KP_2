@@ -18,7 +18,8 @@ class PengawasanController extends Controller
     public function index()
     {
         if (auth()->user()->level === 'kanwil') {
-            $pengawasan = Pengawasan::all();
+            $pengawasan = Pengawasan::join('ppius', 'ppius.id', '=', 'id_ppiu')->get();
+            // dd($pengawasan);
         } elseif (auth()->user()->level === 'kab/kota') {
             $kemenag_kab_kota = Kemenag_kab_kota::where('id_user', auth()->user()->id)->first();
             $pengawasan = Pengawasan::join('ppius', 'ppius.id', '=', 'id_ppiu')
@@ -28,9 +29,18 @@ class PengawasanController extends Controller
             $ppiu = Ppiu::where('id_user', auth()->user()->id)->first();
             $pengawasan = Pengawasan::where('id_ppiu', $ppiu->id)->get();
         }
+
+        $bulan = ['Januari', 'Februari', 'Maret', 'Apri', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+        $currentTime = Carbon::now();
+        $currentTahun = $currentTime->format('Y');
+
         return view('pengawasan.index', [
             'title' => 'Pengawasan',
-            'pengawasans' => $pengawasan
+            'pengawasans' => $pengawasan,
+            'bulans' => $bulan,
+            'tahun' => $currentTahun,
+
         ]);
     }
 
@@ -150,5 +160,161 @@ class PengawasanController extends Controller
         $this->authorize('destroy', $pengawasan);
         Pengawasan::destroy($pengawasan->id);
         return redirect('/pengawasan')->with('berhasil', 'Berhasil Menghapus Data Pengawasan!');
+    }
+
+    public function export(Request $request)
+    {
+        $valid = $request->validate([
+            'bulan' => 'required',
+            'tahun' => 'required|numeric|min:2010',
+        ]);
+
+        if (auth()->user()->level == 'kanwil') {
+            $pengawasans = Pengawasan::whereYear('tanggal_keberangkatan', $valid['tahun'])
+                ->whereMonth('tanggal_keberangkatan', $valid['bulan'])
+                ->get();
+
+            $nama = 'Kantor Wilayah Kementerian Agama Sumatra Barat';
+        } elseif (auth()->user()->level == 'kab/kota') {
+            $kemenag_kab_kota = Kemenag_Kab_kota::where('id_user', auth()->user()->id)->first();
+            $pengawasans = Pengawasan::join('ppius', 'ppius.id', '=', 'id_ppiu')
+                ->where('ppius.id_kab_kota', $kemenag_kab_kota->id_kab_kota)
+                ->whereYear('tanggal_keberangkatan', $valid['tahun'])
+                ->whereMonth('tanggal_keberangkatan', $valid['bulan'])
+                ->get(['pengawasans.*']);
+
+            $nama = $kemenag_kab_kota->nama;
+        } elseif (auth()->user()->level == 'ppiu') {
+            $ppiu = Ppiu::where('id_user', auth()->user()->id)->first();
+            $pengawasans = Pengawasan::where('id_ppiu', $ppiu->id)
+                ->whereYear('tanggal_keberangkatan', $valid['tahun'])
+                ->whereMonth('tanggal_keberangkatan', $valid['bulan'])
+                ->get();
+
+            $nama = $ppiu->nama;
+        }
+
+        $noBulan = $valid['bulan'];
+        $arrNamaBulan = array('1' => 'Januari', '2' => 'Februari', '3' => 'Maret', '4' => 'April', '5' => 'Mei', '6' => 'Juni', '7' => 'Juli', '8' => 'Agustus', '9' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember');
+        $bulan = $arrNamaBulan[$noBulan];
+
+        $namaFile = "Pengisian Blanko Pengawasan Umrah " . $nama . " " . "$bulan" . " " . $valid['tahun'] . '.xlsx';
+
+        $no = 1;
+
+        echo "
+        <link rel='stylesheet' href='/sweetalert2/sweetalert2.min.css'>
+        <script src='/sweetalert2/sweetalert2.min.js'></script>
+        <script type='text/javascript' src='/table-to-excel-master/dist/tableToExcel.js'></script>
+        <table id='table1' data-cols-width='4,14,12,12,30,15,20,10,10,14,14,20,20,20' style='color: white;'>
+        <tr>
+            <th data-a-h='center' colspan='14'>Pengisian Blanko Pengawasan Umrah</th>
+        </tr>
+        <tr>            
+            <th data-a-h='center' colspan='14'>" . $nama . "</th>
+        </tr>
+        <tr>
+            <th data-a-h='center' colspan='14'>" . $bulan . " " . $valid['tahun'] . "</th>
+        </tr>
+        <tr>
+            <th data-a-h='center' data-b-b-s='medium' data-b-t-s='medium' data-b-l-s='medium' data-f-bold='true' rowspan='2'>No</th>
+            <th data-a-h='center' data-b-b-s='medium' data-b-t-s='medium' data-b-l-s='thin' data-f-bold='true' rowspan='2'>Hari</th>
+            <th data-a-h='center' data-b-b-s='medium' data-b-t-s='medium' data-b-l-s='thin' data-f-bold='true' rowspan='2'>Tanggal</th>
+            <th data-a-h='center' data-b-b-s='medium' data-b-t-s='medium' data-b-l-s='thin' data-f-bold='true' rowspan='2'>Jam</th>
+            <th data-a-h='center' data-b-b-s='medium' data-b-t-s='medium' data-b-l-s='thin' data-f-bold='true' rowspan='2'>PPIU</th>
+            <th data-a-h='center' data-b-b-s='medium' data-b-t-s='medium' data-b-l-s='thin' data-f-bold='true' rowspan='2'>Status PPIU</th>
+            <th data-a-h='center' data-b-b-s='medium' data-b-t-s='medium' data-b-l-s='thin' data-f-bold='true' rowspan='2'>Izin</th>
+            <th data-a-h='center' data-b-b-s='thin' data-b-t-s='medium' data-b-l-s='thin' data-f-bold='true' colspan='2'>Jumlah Jemaah</th>
+            <th data-a-h='center' data-b-b-s='thin' data-b-t-s='medium' data-b-l-s='thin' data-f-bold='true' colspan='2'>Tanggal</th>
+            <th data-a-h='center' data-b-b-s='medium' data-b-t-s='medium' data-b-l-s='thin' data-f-bold='true' rowspan='2'>Temuan Lapangan</th>
+            <th data-a-h='center' data-b-b-s='medium' data-b-t-s='medium' data-b-l-s='thin' data-f-bold='true' rowspan='2'>Petugas 1</th>
+            <th data-a-h='center' data-b-b-s='medium' data-b-t-s='medium' data-b-l-s='thin' data-b-r-s='medium' data-f-bold='true' rowspan='2'>Petugas 2</th>
+        </tr>
+        <tr>
+            <th data-a-h='center' data-b-b-s='medium' data-b-l-s='thin' data-f-bold='true'>Laki-laki</th>
+            <th data-a-h='center' data-b-b-s='medium' data-b-l-s='thin' data-f-bold='true'>Wanita</th>
+            <th data-a-h='center' data-b-b-s='medium' data-b-l-s='thin' data-f-bold='true'>Keberangkatan</th>
+            <th data-a-h='center' data-b-b-s='medium' data-b-l-s='thin' data-f-bold='true'>Kepulangan</th>
+        </tr>";
+        foreach ($pengawasans as $pengawasan) {
+            echo "
+        <tr>
+            <td data-b-l-s='medium' data-t='n'>" . $no . "</td>
+            <td data-b-l-s='thin'>" . $pengawasan->hari . "</td>
+            <td data-b-l-s='thin' data-t='d'>" . $pengawasan->tanggal . "</td>
+            <td data-b-l-s='thin'>" . $pengawasan->jam . "</td>
+            <td data-b-l-s='thin'>" . $pengawasan->ppiu->nama . "</td>
+            <td data-b-l-s='thin'>" . $pengawasan->ppiu->status . "</td>
+            <td data-b-l-s='thin'>" . $pengawasan->izin . "</td>
+            <td data-b-l-s='thin' data-t='n'>" . $pengawasan->jumlah_jemaah_laki_laki . "</td>
+            <td data-b-l-s='thin' data-t='n'>" . $pengawasan->jumlah_jemaah_wanita . "</td>
+            <td data-b-l-s='thin' data-t='d'>" . $pengawasan->tanggal_keberangkatan . "</td>
+            <td data-b-l-s='thin' data-t='d'>" . $pengawasan->tanggal_kepulangan . "</td>
+            <td data-b-l-s='thin'>" . $pengawasan->temuan_lapangan . "</td>
+            <td data-b-l-s='thin'>" . $pengawasan->petugas_1 . "</td>
+            <td data-b-l-s='thin' data-b-r-s='medium'>" . $pengawasan->petugas_2 . "</td>
+        </tr>";
+            $no++;
+        }
+        echo "               
+        <tr>
+            <td data-b-t-s='medium'></td>
+            <td data-b-t-s='medium'></td>
+            <td data-b-t-s='medium'></td>
+            <td data-b-t-s='medium'></td>
+            <td data-b-t-s='medium'></td>
+            <td data-b-t-s='medium'></td>
+            <td data-b-t-s='medium'></td>
+            <td data-b-t-s='medium'></td>
+            <td data-b-t-s='medium'></td>
+            <td data-b-t-s='medium'></td>
+            <td data-b-t-s='medium'></td>
+            <td data-b-t-s='medium'></td>
+            <td data-b-t-s='medium'></td>
+            <td data-b-t-s='medium'></td>
+        </tr>    
+    </table>
+    <script>
+    TableToExcel.convert(document.getElementById('table1'), {
+        name: '" . $namaFile . "',
+        sheet: {
+            name: 'Sheet 1'
+        }
+    });
+    let timerInterval
+    Swal.fire({
+        title: 'File Anda Sedang Di-download!',
+        html: '-',
+        timer: 2000,
+        width: '100%',
+        position: 'top',
+        timerProgressBar: true,  
+        showClass: {
+            backdrop: 'swal2-noanimation', 
+            popup: '',                     
+            icon: ''                       
+          },
+          hideClass: {
+            popup: '',                     
+          },              
+        didOpen: () => {
+            Swal.showLoading()
+            const b = Swal.getHtmlContainer().querySelector('b')
+            timerInterval = setInterval(() => {
+            b.textContent = Swal.getTimerLeft()
+            }, 100)
+        },
+        willClose: () => {
+            clearInterval(timerInterval)
+        }
+        }).then((result) => {
+        /* Read more about handling dismissals below */
+        if (result.dismiss === Swal.DismissReason.timer) {
+            console.log('I was closed by the timer')
+        }
+    })
+    </script>";
+
+        return redirect('/pengawasan')->with('berhasil', 'Berhasil Meng-export Data Pengawasan!');
     }
 }

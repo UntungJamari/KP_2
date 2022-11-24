@@ -59,6 +59,16 @@
         </div>
     </div>
 </div>
+@if(session()->has('berhasil'))
+<script>
+    swal.fire({
+        icon: 'success',
+        showConfirmButton: false,
+        timer: '2000',
+        title: '{{ session("berhasil") }}'
+    })
+</script>
+@endif
 @if(session()->has('gagal'))
 <script>
     swal.fire({

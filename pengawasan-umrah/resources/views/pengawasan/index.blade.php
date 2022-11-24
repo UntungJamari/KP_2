@@ -11,9 +11,6 @@
 
 <!-- Page level custom scripts -->
 <script src="{{ URL::asset('js/demo/datatables-demo.js') }}"></script>
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">PPIU</h1>
-</div>
 
 <!-- Page Heading -->
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -30,7 +27,7 @@
             <!-- Card Header - Dropdown -->
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary">Daftar Pengisian Blanko Pengawasan Umrah</h6>
-                <a href="export.php" target="_blank" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Export ke Excel</a>
+                <a id="export" type="button" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" data-toggle="modal" data-target="#modal-export"><i class="fas fa-download fa-sm text-white-50"></i> Export ke Excel</a>
             </div>
             <!-- Card Body -->
             <div class="card-body">
@@ -101,7 +98,64 @@
         </div>
     </div>
 </div>
-<!-- /.container-fluid -->
+<div class="modal fade" id="modal-export">
+    <div class="modal-dialog">
+        <div class="modal-content card shadow mb-4">
+            <div class="modal-header card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h4 class="modal-title m-0 font-weight-bold text-primary">Cetak</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body card-body">
+                <form class="row g-2 mt-3" action="/pengawasan/export" method="POST" id="form" enctype="multipart/form-data">
+                    @csrf
+                    <div class="col-md-12 form-group">
+                        <center>
+                            <h4 class="mb-3">Pilih Bulan Keberangkatan</h4>
+                        </center>
+                    </div>
+                    <div class="row col-md-12">
+                        <div class="col-md-6 form-group">
+                            <label for="input2" class="form-label">Bulan</label><label style="color: red;">*</label>
+                            <select class="form-control @error('bulan') is-invalid @enderror" name="bulan" id="input2" required>
+                                <option value="" selected disabled>Pilih Bulan</option>
+                                @foreach($bulans as $bulan)
+                                <option value="{{ $loop->iteration }}" {{ (old('bulan') == $loop->iteration) ? 'selected' : '' }}>{{ $bulan }}</option>
+                                @endforeach
+                            </select>
+                            @error('bulan')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="input2" class="form-label">Tahun</label><label style="color: red;">*</label>
+                            <select class="form-control @error('tahun') is-invalid @enderror" name="tahun" id="input2" required>
+                                <option value="" selected disabled>Pilih Tahun</option>
+                                @for($i = 2010; $i <= $tahun; $i++) <option value="{{ $i }}" {{ (old('tahun') == $i) ? 'selected' : '' }}>{{ $i }}</option> @endfor
+                            </select>
+                            @error('tahun')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-12 form-group">
+                        <center>
+                            <button type="submit" class="btn btn-outline-primary btn-sm mt-3 mb-3" name="cetak" id="cetak">
+                                <i class="fas fa-fw fa fa-print"></i>
+                                <span>Cetak</span>
+                            </button>
+                        </center>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="modal-detail">
     <div class="modal-dialog">
         <div class="modal-content card shadow mb-4">
@@ -179,6 +233,21 @@
         </div>
     </div>
 </div>
+@if($errors->any())
+<script>
+    swal.fire({
+        icon: 'error',
+        showConfirmButton: false,
+        timer: '2000',
+        title: '{{ $errors->first() }}'
+    })
+</script>
+@endif
+<script>
+    $(document).ready(function() {
+        $(document).on('click', '#export', function() {})
+    })
+</script>
 <script>
     $(document).ready(function() {
         $(document).on('click', '#detail', function() {

@@ -28,6 +28,9 @@ Route::post('/logout', [LoginController::class, 'logout']);
 Route::get('/register', [RegisterController::class, 'index']);
 Route::post('/register', [RegisterController::class, 'store']);
 
+Route::get('/profil', [ProfilController::class, 'index'])->middleware('auth');
+Route::get('/profil/update', [ProfilController::class, 'edit'])->middleware('auth');
+Route::post('/profil/update', [ProfilController::class, 'update'])->middleware('auth');
 Route::get('/profil/gantipassword', [ProfilController::class, 'gantipassword'])->middleware('auth');
 Route::post('/profil/gantipassword', [ProfilController::class, 'savegantipassword'])->middleware('auth');
 
@@ -47,3 +50,4 @@ Route::post('/pengawasan/create', [PengawasanController::class, 'store'])->middl
 Route::get('/pengawasan/update/{pengawasan}', [PengawasanController::class, 'edit'])->middleware('auth');
 Route::post('/pengawasan/update/{pengawasan}', [PengawasanController::class, 'update'])->middleware('auth');
 Route::post('/pengawasan/delete/{pengawasan}', [PengawasanController::class, 'destroy'])->middleware('auth');
+Route::post('/pengawasan/export', [PengawasanController::class, 'export'])->middleware('auth');
