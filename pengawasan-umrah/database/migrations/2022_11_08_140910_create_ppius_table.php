@@ -23,7 +23,8 @@ return new class extends Migration
             $table->date('tanggal_sk');
             $table->string('nama_pimpinan')->nullable();
             $table->text('alamat');
-            $table->string('logo')->default('default.png');
+            $table->foreignId('id_akreditasi')->unique()->nullable();;
+            $table->string('logo')->default('image-profile/btuP6rIVQw1r89VG4C5pSPwZyONSORAclojTQU9N.png');
             $table->timestamps();
         });
     }

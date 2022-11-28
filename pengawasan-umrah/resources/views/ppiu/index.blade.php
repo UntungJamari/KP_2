@@ -46,15 +46,16 @@
                         <tbody>
                             @foreach ($ppius as $ppiu)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $loop->iteration }} <i class="@if($ppiu->id_akreditasi == null) fas fa-fw fa fa-exclamation-triangle text-danger @endif @if($ppiu->id_akreditasi != null) {{ (strtotime(date('d-m-Y')) >= strtotime(date('d-m-Y', strtotime($ppiu->akreditasi->tanggal_akreditasi . ' +4 year')))) ? 'fas fa-fw fa fa-exclamation-triangle text-danger' : '' }} @endif"></i></td>
                                 <td>{{ $ppiu->nama }}</td>
                                 <td>{{ $ppiu->status }}</td>
                                 <td>{{ $ppiu->kab_kota->nama }}</td>
                                 <td>{{ $ppiu->alamat }}</td>
                                 <td>
-                                    <a id="detail" type="button" class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#modal-detail" data-nama_ppiu="{{ $ppiu->nama }}" data-username="{{ $ppiu->user->username }}" data-nama_kab_kota="{{ $ppiu->kab_kota->nama }}" data-status="{{ $ppiu->status }}" data-nomor_sk="{{ $ppiu->nomor_sk }}" data-tanggal_sk="{{ date('d-m-Y', strtotime($ppiu->tanggal_sk)) }}" data-alamat="{{ $ppiu->alamat }}" data-nama_pimpinan="{{ $ppiu->nama_pimpinan }}" data-logo="{{ $ppiu->logo }}">
+                                    <a id="detail" type="button" class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#modal-detail" data-nama_ppiu="{{ $ppiu->nama }}" data-username="{{ $ppiu->user->username }}" data-nama_kab_kota="{{ $ppiu->kab_kota->nama }}" data-status="{{ $ppiu->status }}" data-nomor_sk="{{ $ppiu->nomor_sk }}" data-tanggal_sk="{{ date('d-m-Y', strtotime($ppiu->tanggal_sk)) }}" data-alamat="{{ $ppiu->alamat }}" data-nama_pimpinan="{{ $ppiu->nama_pimpinan }}" data-logo="{{ $ppiu->logo }}" data-tanggal_akreditasi="@if($ppiu->id_akreditasi == null) @endif @if($ppiu->id_akreditasi != null){{ date('d-m-Y', strtotime($ppiu->akreditasi->tanggal_akreditasi)) }} @endif" data-pesan_akreditasi="@if($ppiu->id_akreditasi == null)Belum Melakulan Akreditasi!@endif @if($ppiu->id_akreditasi != null) @if((strtotime(date('d-m-Y')) >= strtotime(date('d-m-Y', strtotime($ppiu->akreditasi->tanggal_akreditasi . ' +4 year')))) && (strtotime(date('d-m-Y')) <= strtotime(date('d-m-Y', strtotime($ppiu->akreditasi->tanggal_akreditasi . ' +5 year'))))) Akreditasi Akan Habis! @endif @if(strtotime(date('d-m-Y')) > strtotime(date('d-m-Y', strtotime($ppiu->akreditasi->tanggal_akreditasi . ' +5 year')))) Akreditasi Sudah Habis! @endif @endif" data-bukti_akreditasi="@if($ppiu->id_akreditasi == null) @endif @if($ppiu->id_akreditasi != null){{ $ppiu->akreditasi->bukti }}@endif">
                                         <i class="fas fa-fw fa fa-eye"></i>
                                     </a>
+                                    @if(auth()->user()->level === 'kanwil' || $ppiu->status == 'Cabang')
                                     <a href="/ppiu/update/{{ $ppiu->id }}" type="button" class="btn btn-outline-warning btn-sm">
                                         <i class="fas fa-fw fa fa-edit"></i>
                                     </a>
@@ -64,7 +65,7 @@
                                             <i class="fas fa-fw fa fa-trash-alt"></i>
                                         </button>
                                     </form>
-
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach
@@ -86,6 +87,9 @@
                 </button>
             </div>
             <div class="modal-body table-responsive card-body">
+                <div class="content-alert" id="content-alert">
+
+                </div>
                 <center>
                     <img class="mb-5" id="gambar" style="width: 300px;">
                 </center>
@@ -123,6 +127,10 @@
                             <th>Alamat</th>
                             <td><span id="alamat"></span></td>
                         </tr>
+                        <tr>
+                            <th>Tanggal Akreditasi</th>
+                            <td><span id="tanggal_akreditasi"></span><br><a href="" id="bukti_akreditasi" target="_blank"></a></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -141,6 +149,9 @@
             var alamat = $(this).data('alamat');
             var nama_pimpinan = $(this).data('nama_pimpinan');
             var logo = $(this).data('logo');
+            var tanggal_akreditasi = $(this).data('tanggal_akreditasi');
+            var pesan_akreditasi = $(this).data('pesan_akreditasi');
+            var bukti_akreditasi = $(this).data('bukti_akreditasi');
             $('#nama_ppiu').text(nama_ppiu);
             $('#username').text(username);
             $('#nama_kab_kota').text(nama_kab_kota);
@@ -151,6 +162,45 @@
             $('#nama_pimpinan').text(nama_pimpinan);
             $('#logo').text(logo);
             $('#gambar').attr('src', 'storage/' + logo);
+            $('#tanggal_akreditasi').text(tanggal_akreditasi);
+
+            if (bukti_akreditasi !== '  ') {
+                $('#bukti_akreditasi').text('Bukti Akreditasi');
+                $('#bukti_akreditasi').attr('href', 'storage/' + bukti_akreditasi.split(' ').join(''));
+            } else {
+                $('#bukti_akreditasi').text('');
+                $('#bukti_akreditasi').attr('href', '');
+            }
+
+
+            if (pesan_akreditasi !== '    ') {
+
+                var content = document.querySelector('.content-alert');
+                content.removeChild(content.lastChild);
+
+                const elementBaru = document.createElement('div');
+
+                elementBaru.innerText = pesan_akreditasi;
+
+                elementBaru.className = "alert alert-danger alert-dismissible fade show";
+
+                var content = document.querySelector('.content-alert');
+                content.appendChild(elementBaru);
+            } else {
+
+                var content = document.querySelector('.content-alert');
+                content.removeChild(content.lastChild);
+
+                const elementBaru = document.createElement('div');
+
+                elementBaru.innerText = "";
+
+                elementBaru.className = "";
+
+                var content = document.querySelector('.content-alert');
+                content.appendChild(elementBaru);
+
+            }
 
         })
     })

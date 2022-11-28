@@ -315,4 +315,14 @@
     })
 </script>
 @endif
+@if(session()->has('info'))
+<script>
+    swal.fire({
+        icon: 'info',
+        showConfirmButton: false,
+        timer: '2000',
+        title: '{{ session("info") }}'
+    })
+</script>
+@endif
 @endsection

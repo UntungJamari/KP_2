@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignId('id_kab_kota')->unique();
             $table->string('nama_pimpinan')->nullable();
             $table->text('alamat');
-            $table->string('logo')->default('logo_kemenag.png');
+            $table->string('logo')->default('image-profile/sT0aKjhi1RY4jQHYfkjHgGfDNNGrr4i3wQTb5pr0.png');
             $table->timestamps();
         });
     }

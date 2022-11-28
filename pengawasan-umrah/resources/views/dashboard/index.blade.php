@@ -2,6 +2,13 @@
 
 @section('container')
 <!-- Page Heading -->
+@if(auth()->user()->level == 'ppiu')
+@if($akreditasi !== '')
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong>{{ $akreditasi }}</strong>, perbarui data akreditasi <a href="/profil">di sini</a>!
+</div>
+@endif
+@endif
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">{{ $title }}</h1>
 </div>
@@ -83,4 +90,14 @@
         title: 'Yessir'
     })
 </script>
+@if(session()->has('berhasil'))
+<script>
+    swal.fire({
+        icon: 'success',
+        showConfirmButton: false,
+        timer: '2000',
+        title: '{{ session("berhasil") }}'
+    })
+</script>
+@endif
 @endsection

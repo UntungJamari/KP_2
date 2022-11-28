@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Akreditasi;
 use App\Models\Kemenag_kab_kota;
 use App\Models\Ppiu;
 use App\Models\User;
+use App\Models\Kanwil;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 
 class ProfilController extends Controller
 {
@@ -22,13 +25,58 @@ class ProfilController extends Controller
             $nama = $user->kemenag_kab_kota->nama;
         } elseif (auth()->user()->level == 'ppiu') {
             $nama = $user->ppiu->nama;
+
+            if ($user->ppiu->id_akreditasi == null) {
+                return view('profil.index', [
+                    'title' => 'Profil',
+                    'subtitle' => 'fffffff',
+                    'user' => $user,
+                    'nama' => $nama,
+                    'akreditasi' => 'Anda Belum Melakukan Akreditasi!',
+                ]);
+            } else {
+
+                $tanggal_peringatan = date('d-m-Y', strtotime($user->ppiu->akreditasi->tanggal_akreditasi . " +4 year"));
+                $tanggal_habis = date('d-m-Y', strtotime($user->ppiu->akreditasi->tanggal_akreditasi . " +5 year"));
+                $tanggal_sekarang = date('d-m-Y');
+
+                if ((strtotime($tanggal_sekarang) >= strtotime($tanggal_peringatan)) && (strtotime($tanggal_sekarang) <= strtotime($tanggal_habis))) {
+                    // dd('peringatan', $tanggal_sekarang, $tanggal_habis);
+                    return view('profil.index', [
+                        'title' => 'Profil',
+                        'subtitle' => 'fffffff',
+                        'user' => $user,
+                        'nama' => $nama,
+                        'akreditasi' => 'Akreditasi Anda Akan Habis, Silakan Perbarui!',
+                    ]);
+                }
+                if (strtotime($tanggal_sekarang) > strtotime($tanggal_habis)) {
+                    // dd('habis', $tanggal_sekarang, $tanggal_habis);
+                    return view('profil.index', [
+                        'title' => 'Profil',
+                        'subtitle' => 'fffffff',
+                        'user' => $user,
+                        'nama' => $nama,
+                        'akreditasi' => 'Akreditasi Anda Sudah Habis, Silakan Perbarui!',
+                    ]);
+                }
+
+                return view('profil.index', [
+                    'title' => 'Profil',
+                    'subtitle' => 'fffffff',
+                    'user' => $user,
+                    'nama' => $nama,
+                    'akreditasi' => '',
+                ]);
+            }
         }
 
         return view('profil.index', [
             'title' => 'Profil',
             'subtitle' => 'fffffff',
             'user' => $user,
-            'nama' => $nama
+            'nama' => $nama,
+            'akreditasi' => '',
         ]);
     }
 
@@ -45,8 +93,42 @@ class ProfilController extends Controller
 
     public function update(Request $request)
     {
+        if (auth()->user()->level == 'kanwil') {
 
-        if (auth()->user()->level == 'ppiu') {
+            $valid = $request->validate([
+                'nama_pimpinan' => '',
+                'alamat' => 'required',
+            ]);
+
+            $kanwil = Kanwil::where('id_user', auth()->user()->id)->first();
+            if ($request->username != $kanwil->user->username) {
+                $valid1 = $request->validate([
+                    'username' => 'required|min:7|max:255|unique:users',
+                ]);
+                User::where('id', $kanwil->user->id)
+                    ->update($valid1);
+            }
+
+            Kanwil::where('id_user', auth()->user()->id)
+                ->update($valid);
+        } elseif (auth()->user()->level == 'kab/kota') {
+            $valid = $request->validate([
+                'nama_pimpinan' => '',
+                'alamat' => 'required',
+            ]);
+
+            $kemenag_kab_kota = Kemenag_kab_kota::where('id_user', auth()->user()->id)->first();
+            if ($request->username != auth()->user()->username) {
+                $valid1 = $request->validate([
+                    'username' => 'required|min:7|max:255|unique:users',
+                ]);
+                User::where('id', $kemenag_kab_kota->user->id)
+                    ->update($valid1);
+            }
+
+            Kemenag_kab_kota::where('id_user', auth()->user()->id)
+                ->update($valid);
+        } elseif (auth()->user()->level == 'ppiu') {
 
             $ppiu = Ppiu::where('id_user', auth()->user()->id)->first();
 
@@ -81,7 +163,18 @@ class ProfilController extends Controller
                     if ($ppiu->logo !== 'image-profile/btuP6rIVQw1r89VG4C5pSPwZyONSORAclojTQU9N.png') {
                         Storage::delete($ppiu->logo);
                     }
-                    $valid['logo'] = $request->file('logo')->store('image-profile');
+
+                    $logo = Image::make($request->file('logo'));
+                    $logo = $logo->resize(1000, null, function ($constraint) {
+                        $constraint->aspectRatio();
+                    });
+                    $logo = $logo->encode('jpg');
+                    $hash = md5($logo->__toString());
+                    $path = "image-profile/{$hash}.jpg";
+                    $path_c = "storage/{$path}";
+                    $save = $logo->save($path_c);
+
+                    $valid['logo'] = $path;
 
                     Ppiu::where('nama', $ppiu->nama)
                         ->update(['logo' => $valid['logo']]);
@@ -126,5 +219,43 @@ class ProfilController extends Controller
             ->update(['password' => bcrypt($valid['password_baru'])]);
 
         return redirect('/profil/gantipassword')->with('berhasil', 'Berhasil Mengubah Password!');
+    }
+
+    public function akreditasi()
+    {
+        $this->authorize('akreditasi', Akreditasi::class);
+
+        return view('profil.akreditasi', [
+            'title' => 'Akreditasi',
+            'subtitle' => 'fffffff',
+        ]);
+    }
+
+    public function storeakreditasi(Request $request)
+    {
+        $this->authorize('akreditasi', Akreditasi::class);
+        $valid = $request->validate([
+            'tanggal_akreditasi' => 'required|date',
+            'bukti' => 'required|mimes:pdf|max:2048',
+        ]);
+
+        $ppiu = Ppiu::where('id_user', auth()->user()->id)->first();
+
+        if ($ppiu->id_akreditasi == null) {
+            $valid['bukti'] = $request->file('bukti')->store('file-akreditasi');
+
+            $akreditasi = Akreditasi::create($valid);
+
+            Ppiu::where('id', $ppiu->id)
+                ->update(['id_akreditasi' => $akreditasi->id]);
+        } else {
+            Storage::delete($ppiu->akreditasi->bukti);
+            $valid['bukti'] = $request->file('bukti')->store('file-akreditasi');
+
+            Akreditasi::where('id', $ppiu->akreditasi->id)
+                ->update($valid);
+        }
+
+        return redirect('/profil')->with('berhasil', 'Berhasil Memperbarui Akreditasi!');
     }
 }

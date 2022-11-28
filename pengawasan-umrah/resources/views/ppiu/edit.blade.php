@@ -23,14 +23,13 @@
                     <i class="fas fa-fw fa fa-arrow-alt-circle-left"></i>
                     <span>Kembali</span>
                 </a>
-                <form class="row g-2 mt-3" action="edit_ppiu.php" method="POST" onsubmit="return resetPassword(this);">
+                <form class="row g-2 mt-3" action="/ppiu/resetPassword/{{ $ppiu->id }}" method="POST" onsubmit="return resetPassword(this);">
                     @csrf
-                    <div class="col-md-12 form-group mt-5">
+                    <div class="col-md-12 form-group">
                         <center>
-                            <h4 class="mb-3">Akun PPIU</h4>
+                            <h4 class="mb-3">{{ $ppiu->nama }}<br>{{ $ppiu->status }}<br>{{ $ppiu->kab_kota->nama }}</h4>
                         </center>
                     </div>
-
                     <div class="col-md-6 form-group">
                         <label for="input1" class="form-label">Reset Password</label>
                         <input type="submit" class="btn btn-primary btn-user btn-block" id="reset_password" name="reset_password" value="Default : 12345678">
@@ -44,6 +43,7 @@
                             <h4 class="mb-3">Data PPIU</h4>
                         </center>
                     </div>
+                    @if($ppiu->status == 'Pusat')
                     <div class="col-md-12 form-group">
                         <label for="input1" class="form-label">Nama PPIU</label><label style="color: red;">*</label>
                         <input autofocus type="text" class="form-control @error('nama') is-invalid @enderror" id="input1" name="nama" value="{{ old('nama', $ppiu->nama) }}" required>
@@ -53,6 +53,7 @@
                         </div>
                         @enderror
                     </div>
+                    @endif
                     <div class="col-md-6 form-group">
                         <label for="input1" class="form-label">Username</label>
                         <input type="text" class="form-control @error('username') is-invalid @enderror" name="username" id="input1" value="{{ old('username', $ppiu->user->username) }}" required>
@@ -82,6 +83,7 @@
                         <label for="input1" class="form-label">Nama Pimpinan</label>
                         <input autofocus type="text" class="form-control" id="input1" name="nama_pimpinan" value="{{ old('nama_pimpinan', $ppiu->nama_pimpinan) }}">
                     </div>
+                    @if(auth()->user()->level === 'kanwil')
                     <div class="col-md-6 form-group">
                         <label for="input2" class="form-label">Status</label><label style="color: red;">*</label>
                         <select class="form-control @error('status') is-invalid @enderror" name="status" id="input2" required>
@@ -95,6 +97,7 @@
                         </div>
                         @enderror
                     </div>
+                    @endif
                     <div class="col-md-6 form-group">
                         <label for="input1" class="form-label">Nomor SK</label><label style="color: red;">*</label>
                         <input autofocus type="text" class="form-control @error('nomor_sk') is-invalid @enderror" id="input1" name="nomor_sk" value="{{ old('nomor_sk', $ppiu->nomor_sk) }}" required>
@@ -122,6 +125,7 @@
                         </div>
                         @enderror
                     </div>
+                    @if($ppiu->status == 'Pusat')
                     <div class="col-md-5 form-group">
                         <label for="input1" class="form-label">Logo</label><br>
                         <input type="hidden" name="logo_lama" value="{{ $ppiu->logo }}">
@@ -141,6 +145,7 @@
                         <img id="upload-img" class="img-preview img-fluid col-12">
                         <p style="font-size: 12px; @error('logo') color: red; @enderror">*ukuran file maksimal 1 mb dan format file : .jpg, .jpeg, .png</p>
                     </div>
+                    @endif
                     <div class="col-md-12 form-group">
                         <center>
                             <button type="submit" class="btn btn-outline-primary btn-sm mt-5 mb-3" name="simpan" id="simpan">

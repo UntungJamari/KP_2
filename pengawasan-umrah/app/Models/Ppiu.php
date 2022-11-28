@@ -25,4 +25,9 @@ class Ppiu extends Model
     {
         return $this->hasMany(Pengawasan::class, 'id_ppiu');
     }
+
+    public function akreditasi()
+    {
+        return $this->belongsTo(Akreditasi::class, 'id_akreditasi');
+    }
 }

@@ -189,7 +189,12 @@ class PpiuController extends Controller
             $kemenag_kab_kota = $kemenag_kab_kotas->where('id_user', auth()->user()->id)->first();
             $request->merge([
                 'id_kab_kota' => $kemenag_kab_kota->id_kab_kota,
+                'status' => $ppiu->status,
             ]);
+        }
+
+        if ($ppiu->status == 'Cabang') {
+            $request['nama'] = $ppiu->nama;
         }
 
         $valid2 = $request->validate([
@@ -211,9 +216,21 @@ class PpiuController extends Controller
                 ->update($valid1);
         }
 
-        if ($request->file('logo')) {
-            Storage::delete($ppiu->logo);
-            $valid2['logo'] = $request->file('logo')->store('image-profile');
+        if ($ppiu->status == 'Pusat') {
+            if ($request->file('logo')) {
+                if ($ppiu->logo !== 'image-profile/btuP6rIVQw1r89VG4C5pSPwZyONSORAclojTQU9N.png') {
+                    Storage::delete($ppiu->logo);
+                }
+                $valid2['logo'] = $request->file('logo')->store('image-profile');
+
+                Ppiu::where('nama', $ppiu->nama)
+                    ->update(['logo' => $valid2['logo']]);
+            }
+
+            if ($request->nama != $ppiu->nama) {
+                Ppiu::where('nama', $ppiu->nama)
+                    ->update(['nama' => $valid2['nama']]);
+            }
         }
 
         Ppiu::where('id', $ppiu->id)
@@ -238,5 +255,13 @@ class PpiuController extends Controller
         User::destroy($ppiu->id_user);
 
         return redirect('/ppiu')->with('berhasil', 'Berhasil Menghapus PPIU!');
+    }
+
+    public function resetPassword(Request $request, Ppiu $ppiu)
+    {
+        User::where('id', $ppiu->id_user)
+            ->update(['password' => bcrypt('12345678')]);
+
+        return redirect('/ppiu/update/' . $ppiu->id)->with('berhasil', 'Berhasil Mereset Password PPIU!');
     }
 }

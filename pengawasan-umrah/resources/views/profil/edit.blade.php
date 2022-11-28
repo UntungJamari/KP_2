@@ -18,6 +18,95 @@
                     <i class="fas fa-fw fa fa-arrow-alt-circle-left"></i>
                     <span>Kembali</span>
                 </a>
+                @if (auth()->user()->level == 'kanwil')
+                <center>
+                    <img src="{{ URL::asset('storage/'.$user->kanwil->logo) }}" style="width: 250px;" class="mb-5">
+                    <h4 class="mb-3">Kanwil Kementerian Agama Sumatera Barat</h4>
+                </center>
+                <form class="row g-2" action="update" method="POST">
+                    @csrf
+                    <div class="col-md-6 form-group">
+                        <label for="validationCustom02" class="form-label">Username</label>
+                        <input autofocus type="text" class="form-control @error('username') is-invalid @enderror" id="validationCustom02" name="username" value="{{ old('username', $user->username) }}" required>
+                        @error('username')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                        @enderror
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="validationCustom03" class="form-label">Nama Pimpinan</label>
+                        <input autofocus type="text" class="form-control @error('nama_pimpinan') is-invalid @enderror" id="validationCustom03" name="nama_pimpinan" value="{{ old('nama_pimpinan', $user->kanwil->nama_pimpinan) }}" required>
+                        @error('nama_pimpinan')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                        @enderror
+                    </div>
+                    <div class="col-md-12 form-group">
+                        <label for="validationCustom04" class="form-label">Alamat</label>
+                        <textarea class="form-control @error('alamat') is-invalid @enderror" name="alamat" id="validationCustom04" cols="30" rows="3" required>{{ old('alamat', $user->kanwil->alamat) }}</textarea>
+                        @error('alamat')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                        @enderror
+                    </div>
+                    <div class="col-md-12 form-group">
+                        <center>
+                            <button type="submit" class="btn btn-outline-primary btn-sm my-3" name="simpan">
+                                <i class="fas fa-fw fa fa-save"></i>
+                                <span>Simpan</span>
+                            </button>
+                        </center>
+                    </div>
+                </form>
+                @endif
+                @if (auth()->user()->level == 'kab/kota')
+                <center>
+                    <img src="{{ URL::asset('storage/'.$user->kemenag_kab_kota->logo) }}" style="width: 250px;" class="mb-5">
+                    <h4 class="mb-3">{{ $user->kemenag_kab_kota->nama }}</h4>
+                </center>
+                <form class="row g-2" action="update" method="POST">
+                    @csrf
+                    <div class="col-md-6 form-group">
+                        <label for="validationCustom02" class="form-label">Username</label>
+                        <input autofocus type="text" class="form-control @error('username') is-invalid @enderror" id="validationCustom02" name="username" value="{{ old('username', $user->username) }}" required>
+                        @error('username')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                        @enderror
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <label for="validationCustom03" class="form-label">Nama Pimpinan</label>
+                        <input autofocus type="text" class="form-control @error('nama_pimpinan') is-invalid @enderror" id="validationCustom03" name="nama_pimpinan" value="{{ old('nama_pimpinan', $user->kemenag_kab_kota->nama_pimpinan) }}" required>
+                        @error('nama_pimpinan')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                        @enderror
+                    </div>
+                    <div class="col-md-12 form-group">
+                        <label for="validationCustom04" class="form-label">Alamat</label>
+                        <textarea class="form-control @error('alamat') is-invalid @enderror" name="alamat" id="validationCustom04" cols="30" rows="3" required>{{ old('alamat', $user->kemenag_kab_kota->alamat) }}</textarea>
+                        @error('alamat')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                        @enderror
+                    </div>
+                    <div class="col-md-12 form-group">
+                        <center>
+                            <button type="submit" class="btn btn-outline-primary btn-sm my-3" name="simpan">
+                                <i class="fas fa-fw fa fa-save"></i>
+                                <span>Simpan</span>
+                            </button>
+                        </center>
+                    </div>
+                </form>
+                @endif
+                @if (auth()->user()->level == 'ppiu')
                 <form class="row g-2 mt-3" action="update" method="POST" id="form" enctype="multipart/form-data">
                     <div class="col-md-12 form-group">
                         <center>
@@ -111,6 +200,7 @@
                         </center>
                     </div>
                 </form>
+                @endif
             </div>
         </div>
     </div>

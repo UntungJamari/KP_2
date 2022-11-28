@@ -13,12 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('kanwils', function (Blueprint $table) {
+        Schema::create('akreditasis', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_user')->unique();
-            $table->string('nama_pimpinan')->nullable();
-            $table->text('alamat');
-            $table->string('logo')->default('image-profile/sT0aKjhi1RY4jQHYfkjHgGfDNNGrr4i3wQTb5pr0.png');
+            $table->date('tanggal_akreditasi');
+            $table->string('bukti');
             $table->timestamps();
         });
     }
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('kanwils');
+        Schema::dropIfExists('akreditasis');
     }
 };

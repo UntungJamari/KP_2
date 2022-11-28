@@ -194,6 +194,10 @@ class PengawasanController extends Controller
             $nama = $ppiu->nama;
         }
 
+        if ($pengawasans->isEmpty()) {
+            return redirect()->back()->withInput()->with('info', 'Data Kosong!');
+        }
+
         $noBulan = $valid['bulan'];
         $arrNamaBulan = array('1' => 'Januari', '2' => 'Februari', '3' => 'Maret', '4' => 'April', '5' => 'Mei', '6' => 'Juni', '7' => 'Juli', '8' => 'Agustus', '9' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember');
         $bulan = $arrNamaBulan[$noBulan];

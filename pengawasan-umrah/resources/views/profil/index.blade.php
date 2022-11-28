@@ -59,6 +59,11 @@
                     </table>
                     @endif
                     @if(auth()->user()->level == 'ppiu')
+                    @if($akreditasi !== '')
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>{{ $akreditasi }}</strong>
+                    </div>
+                    @endif
                     <img src="storage/{{ $user->ppiu->logo }}" style="width: 250px;" class="mb-5">
                     <h4 class="mb-3">{{ $nama }}</h4>
                     <table class="table table-bordered no-margin col-8">
@@ -86,6 +91,27 @@
                             <tr>
                                 <th>Alamat</th>
                                 <td><span>{{ $user->ppiu->alamat }}</span></td>
+                            </tr>
+                            <tr>
+                                <th>Tanggal Akreditasi</th>
+                                <td>
+                                    <div class="row col-md-12">
+                                        <div class="col-md-6">
+                                            @if($user->ppiu->id_akreditasi === null)
+                                            <span>-</span>
+                                            @endif
+                                            @if($user->ppiu->id_akreditasi !== null)
+                                            <span>{{ date('d-m-Y', strtotime($user->ppiu->akreditasi->tanggal_akreditasi)) }}</span><br><a href="storage/{{ $user->ppiu->akreditasi->bukti }}" target="_blank">Bukti Akreditasi</a>
+                                            @endif
+                                        </div>
+                                        <div class="col-md-6">
+                                            <a href="/profil/akreditasi" type="button" class="btn btn-outline-info btn-sm mb-3">
+                                                <i class="fas fa-fw fa fa-redo-alt"></i>
+                                                <span>Perbarui Data Akreditasi</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

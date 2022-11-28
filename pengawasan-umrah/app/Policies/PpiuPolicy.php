@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Ppiu;
 use App\Models\User;
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class PpiuPolicy
@@ -102,5 +103,14 @@ class PpiuPolicy
     public function forceDelete(User $user, Ppiu $ppiu)
     {
         //
+    }
+
+    public function resetPassword(User $user, Ppiu $ppiu)
+    {
+        if ($user->level == 'kab/kota') {
+            return $user->kemenag_kab_kota->id_kab_kota == $ppiu->id_kab_kota;
+        } elseif ($user->level == 'kanwil') {
+            return true;
+        }
     }
 }
