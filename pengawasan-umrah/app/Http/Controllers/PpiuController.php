@@ -8,6 +8,7 @@ use App\Models\Ppiu;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 
 class PpiuController extends Controller
 {
@@ -138,7 +139,18 @@ class PpiuController extends Controller
         $valid2['id_user'] = $user->id;
 
         if ($request->file('logo')) {
-            $valid2['logo'] = $request->file('logo')->store('image-profile');
+
+            $logo = Image::make($request->file('logo'));
+            $logo = $logo->resize(1000, null, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $logo = $logo->encode('jpg');
+            $hash = md5($logo->__toString());
+            $path = "image-profile/{$hash}.jpg";
+            $path_c = "storage/{$path}";
+            $save = $logo->save($path_c);
+
+            $valid2['logo'] = $path;
         }
 
         Ppiu::create($valid2);
@@ -221,7 +233,18 @@ class PpiuController extends Controller
                 if ($ppiu->logo !== 'image-profile/btuP6rIVQw1r89VG4C5pSPwZyONSORAclojTQU9N.png') {
                     Storage::delete($ppiu->logo);
                 }
-                $valid2['logo'] = $request->file('logo')->store('image-profile');
+
+                $logo = Image::make($request->file('logo'));
+                $logo = $logo->resize(1000, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                });
+                $logo = $logo->encode('jpg');
+                $hash = md5($logo->__toString());
+                $path = "image-profile/{$hash}.jpg";
+                $path_c = "storage/{$path}";
+                $save = $logo->save($path_c);
+
+                $valid2['logo'] = $path;
 
                 Ppiu::where('nama', $ppiu->nama)
                     ->update(['logo' => $valid2['logo']]);
