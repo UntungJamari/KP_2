@@ -107,18 +107,10 @@
                         @enderror
                     </div>
                     <div class="col-md-12 form-group">
-                        <label for="input1" class="form-label">Logo</label><br>
+                        <div><label for="file" class="form-label" id="label_logo">Logo</label></div>
+                        <input type="file" id="file" name="logo" class="@error('logo') is-invalid @enderror">
+                        <p id="validate_file" style="font-size: 12px; @error('logo') color: red; @enderror">*ukuran file maksimal 1 mb dan format file : .jpg, .jpeg, .png</p>
                         <img id="upload-img" class="img-preview img-fluid col-6">
-                    </div>
-                    <div class="col-md-3 form-group">
-                        <br>
-                        <p style="font-size: 12px; @error('logo') color: red; @enderror">*ukuran file maksimal 1 mb dan format file : .jpg, .jpeg, .png</p>
-                        <input type="file" id="file" name="logo" style="display: none;" class="form-control @error('logo') is-invalid @enderror">
-                        <label for="file" class="btn btn-primary btn-user btn-block">
-                            <i class="fas fa-fw fa fa-images">
-                            </i>
-                            Pilih Gambar
-                        </label>
                     </div>
                     <div class="col-md-12 form-group mt-5">
                         <center>
@@ -151,13 +143,21 @@
         </div>
     </div>
 </div>
-
 <!-- Ajax -->
 <script src="{{ URL::asset('ajax/jquery.min.js') }}"></script>
 <script>
+    var label_logo = document.getElementById("label_logo");
+    var file = document.getElementById("file");
+    var upload_image = document.getElementById("upload-img");
+    var validate_file = document.getElementById("validate_file");
+
     function statusSelected() {
         let status = $('#status').val();
         if (status == 'Cabang') {
+            label_logo.style.display = "none";
+            file.style.display = "none";
+            upload_image.style.display = "none";
+            validate_file.style.display = "none";
             $("#nama").attr("id", "nama_ppiu");
             $(document).ready(function() {
 
@@ -189,6 +189,10 @@
 
             });
         } else {
+            label_logo.style.display = "flex";
+            file.style.display = "flex";
+            upload_image.style.display = "flex";
+            validate_file.style.display = "flex";
             $("#nama_ppiu").attr("id", "nama");
         }
     }

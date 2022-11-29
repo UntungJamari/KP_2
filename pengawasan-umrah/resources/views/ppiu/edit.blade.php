@@ -56,7 +56,7 @@
                     @endif
                     <div class="col-md-6 form-group">
                         <label for="input1" class="form-label">Username</label>
-                        <input type="text" class="form-control @error('username') is-invalid @enderror" name="username" id="input1" value="{{ old('username', $ppiu->user->username) }}" required>
+                        <input autofocus type="text" class="form-control @error('username') is-invalid @enderror" name="username" id="input1" value="{{ old('username', $ppiu->user->username) }}" required>
                         @error('username')
                         <div class="invalid-feedback">
                             {{ $message }}
@@ -66,7 +66,7 @@
                     @if(auth()->user()->level === 'kanwil')
                     <div class="col-md-6 form-group">
                         <label for="input2" class="form-label">Kabupten/Kota</label><label style="color: red;">*</label>
-                        <select class="form-control @error('id_kab_kota') is-invalid @enderror" name="id_kab_kota" id="input2" required>
+                        <select autofocus class="form-control @error('id_kab_kota') is-invalid @enderror" name="id_kab_kota" id="input2" required>
                             <option value="" selected disabled>Pilih Kabupaten/Kota</option>
                             @foreach ($kab_kotas as $kab_kota)
                             <option value="{{ $kab_kota->id }}" {{ (old('id_kab_kota', $ppiu->id_kab_kota) == $kab_kota->id) ? 'selected' : '' }}>{{ $kab_kota->nama }}</option>

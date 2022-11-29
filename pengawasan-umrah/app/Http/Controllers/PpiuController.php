@@ -130,6 +130,8 @@ class PpiuController extends Controller
                 $kab_kota = Kab_kota::where('id', $request->id_kab_kota)->first();
                 return redirect()->back()->withInput()->with('gagal', $request->nama . ' Kantor ' . $request->status . ' di ' . $kab_kota->nama . ' Sudah Ada!');
             }
+
+            $valid2['logo'] = $cek_pusat->logo;
         }
 
         User::create($valid1);

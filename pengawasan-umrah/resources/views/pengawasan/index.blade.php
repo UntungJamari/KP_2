@@ -48,8 +48,8 @@
                                 <th>Kab/Kota</th>
                                 @endif
                                 @endif
+                                <th>Status PPIU</th>
                                 <th style="width: 80px;">Tanggal</th>
-                                <th>Jam</th>
                                 <th>Jumlah Jemaah</th>
                                 <th>Tanggal Keberangkatan</th>
                                 <th>Tanggal Kepulangan</th>
@@ -66,8 +66,8 @@
                                 <td>{{ $pengawasan->ppiu->kab_kota->nama }}</td>
                                 @endif
                                 @endif
+                                <td>{{ $pengawasan->ppiu->status}}</td>
                                 <td>{{ date('d-m-Y', strtotime($pengawasan->tanggal)) }}</td>
-                                <td>{{ $pengawasan->jam}}</td>
                                 <td>{{ $pengawasan->jumlah_jemaah_laki_laki + $pengawasan->jumlah_jemaah_wanita}}</td>
                                 <td>{{ date('d-m-Y', strtotime($pengawasan->tanggal_keberangkatan)) }}</td>
                                 <td>{{ date('d-m-Y', strtotime($pengawasan->tanggal_kepulangan)) }}</td>
